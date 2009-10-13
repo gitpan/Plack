@@ -1,0 +1,41 @@
+---
+abstract: 'PSGI reference implementation and utilities'
+author:
+  - 'See C<AUTHORS> file.'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+  Test::Exception: 0
+  Test::More: 0.88
+  Test::Requires: 0
+  Test::TCP: 0.11
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 0.910'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Plack
+no_index:
+  directory:
+    - inc
+    - share
+    - t
+    - xt
+requires:
+  Class::Accessor::Fast: 0
+  Devel::StackTrace: 0
+  Devel::StackTrace::AsHTML: 0
+  File::ShareDir: 0
+  Filter::Util::Call: 0
+  HTTP::Request::AsCGI: 0.9
+  LWP: 0
+  MIME::Types: 0
+  Path::Class: 0
+  Pod::Usage: 0
+  URI: 0
+  perl: 5.8.1
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.9000
