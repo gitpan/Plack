@@ -1,16 +1,17 @@
 package Plack::Middleware::StackTrace;
 use strict;
 use warnings;
-use base qw/Plack::Middleware/;
+use parent qw/Plack::Middleware/;
 use Plack;
 use Plack::Util;
 use Devel::StackTrace;
 use Devel::StackTrace::AsHTML;
+use Try::Tiny;
 
 our $StackTraceClass = "Devel::StackTrace";
 
 # Optional since it needs PadWalker
-if (eval { require Devel::StackTrace::WithLexicals; 1 }) {
+if (try { require Devel::StackTrace::WithLexicals; 1 }) {
     $StackTraceClass = "Devel::StackTrace::WithLexicals";
 }
 
@@ -23,10 +24,7 @@ sub call {
         die @_;
     };
 
-    my $res = do {
-        local $@;
-        eval { $self->app->($env) };
-    };
+    my $res = try { $self->app->($env) };
 
     if (!$res && $trace) {
         my $body = $trace->as_html;
