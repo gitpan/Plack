@@ -60,6 +60,8 @@ sub set_io_path {
 sub content_length {
     my $body = shift;
 
+    return unless defined $body;
+
     if (ref $body eq 'ARRAY') {
         my $cl = 0;
         for my $chunk (@$body) {
@@ -78,12 +80,12 @@ sub foreach {
 
     if (ref $body eq 'ARRAY') {
         for my $line (@$body) {
-            $cb->($line);
+            $cb->($line) if length $line;
         }
     } else {
         local $/ = \4096 unless ref $/;
         while (defined(my $line = $body->getline)) {
-            $cb->($line);
+            $cb->($line) if length $line;
         }
         $body->close;
     }

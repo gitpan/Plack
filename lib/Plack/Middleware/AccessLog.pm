@@ -20,12 +20,13 @@ sub call {
 
     my $res = $self->app->($env);
 
-    my $logger = $self->logger || sub { $env->{'psgi.errors'}->print(@_) };
+    return $self->response_cb($res, sub {
+        my $res = shift;
+        my $logger = $self->logger || sub { $env->{'psgi.errors'}->print(@_) };
 
-    my $content_length = Plack::Util::content_length($res->[2]);
-    $logger->( $self->log_line($res->[0], $res->[1], $env, { content_length => $content_length }) );
-
-    return $res;
+        my $content_length = Plack::Util::content_length($res->[2]);
+        $logger->( $self->log_line($res->[0], $res->[1], $env, { content_length => $content_length }) );
+    });
 }
 
 sub log_line {
