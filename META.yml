@@ -27,7 +27,7 @@ requires:
   Class::Accessor::Fast: 0
   Devel::StackTrace: 0
   Devel::StackTrace::AsHTML: 0
-  File::ShareDir: 0
+  File::ShareDir: 1.00
   Filter::Util::Call: 0
   HTTP::Request::AsCGI: 0.9
   LWP: 0
@@ -40,4 +40,5 @@ requires:
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.9003
+  repository: git://github.com/miyagawa/Plack.git
+version: 0.9004
