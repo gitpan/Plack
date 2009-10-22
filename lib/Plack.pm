@@ -3,7 +3,7 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9004';
+our $VERSION = '0.9005';
 
 1;
 __END__
@@ -90,9 +90,17 @@ callbacks.
 
 L<Plack::Test::Suite> is a test suite to test a new PSGI server backend.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-See C<AUTHORS> file.
+Tatsuhiko Miyagawa
+
+Yuval Kogman
+
+Tokuhiro Matsuno
+
+Kazuhiro Osawa
+
+Kazuho Oku
 
 =head1 SEE ALSO
 

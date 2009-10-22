@@ -14,16 +14,20 @@ readme_from 'lib/Plack.pm';
 requires 'Class::Accessor::Fast';
 requires 'LWP'; # HTTP::Status, HTTP::Headers and HTTP::Request
 requires 'URI';
-requires 'HTTP::Request::AsCGI', 0.9;
 requires 'Pod::Usage';  # plackup
 requires 'File::ShareDir', '1.00'; # Plack::Test::Suite
 requires 'Try::Tiny';
 requires 'parent';
 
-requires 'Path::Class'; # Middleware::Static
-requires 'MIME::Types'; # Middleware::Static
 requires 'Devel::StackTrace'; # Middleware::StackTrace
 requires 'Devel::StackTrace::AsHTML'; # Middleware::StackTrace
+
+feature 'Automatic reload in plackup (-r)',
+    'Filesys::Notify::Simple';
+
+feature 'Serve static files - Middleware::Static and App::File',
+    'Path::Class',
+    'MIME::Types';
 
 feature 'Fast XS-based HTTP header parsing',
     'HTTP::Parser::XS', 0.04;
