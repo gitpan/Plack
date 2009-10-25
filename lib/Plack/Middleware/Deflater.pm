@@ -19,28 +19,28 @@ sub call {
 
         my $h = Plack::Util::headers($res->[1]);
         if (Plack::Util::status_with_no_entity_body($res->[0]) or
-            $h->get('Cache-Control') =~ /\bno-transform\b/) {
+            $h->exists('Cache-Control') && $h->get('Cache-Control') =~ /\bno-transform\b/) {
             return;
         }
 
         # TODO check quality
         my $encoding = 'identity';
-        for my $enc (qw(deflate gzip identity)) {
+        for my $enc (qw(gzip deflate identity)) {
             if ($env->{HTTP_ACCEPT_ENCODING} =~ /\b$enc\b/) {
                 $encoding = $enc;
                 last;
             }
         }
 
-        my @vary = split /\s*,\s*/, $h->get('Vary');
+        my @vary = split /\s*,\s*/, ($h->get('Vary') || '');
         push @vary, 'Accept-Encoding';
         $h->set('Vary' => join(",", @vary));
 
         my $encoder;
         if ($encoding eq 'gzip') {
-            $encoder = "IO::Compress::Gzip";
+            $encoder = sub { IO::Compress::Gzip->new($_[0]) };
         } elsif ($encoding eq 'deflate') {
-            $encoder = "IO::Compress::Deflate";
+            $encoder = sub { IO::Compress::Deflate->new($_[0]) };
         } elsif ($encoding ne 'identity') {
             my $msg = "An acceptable encoding for the requested resource is not found.";
             @$res = (406, ['Content-Type' => 'text/plain'], [ $msg ]);
@@ -51,7 +51,7 @@ sub call {
             $h->set('Content-Encoding' => $encoding);
             $h->remove('Content-Length');
             my($done, $buf);
-            my $compress = $encoder->new(\$buf);
+            my $compress = $encoder->(\$buf);
             return sub {
                 my $chunk = shift;
                 return if $done;
@@ -61,9 +61,13 @@ sub call {
                     return $buf;
                 }
                 $compress->print($chunk);
-                my $body = $buf;
-                $buf = undef;
-                return $body;
+                if (defined $buf) {
+                    my $body = $buf;
+                    $buf = undef;
+                    return $body;
+                } else {
+                    return '';
+                }
             };
         }
     });

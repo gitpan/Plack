@@ -12,7 +12,7 @@ my %formats = (
     combined => "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"",
 );
 
-use POSIX;
+use POSIX ();
 
 sub call {
     my $self = shift;
@@ -34,6 +34,14 @@ sub log_line {
 
     my $h = Plack::Util::headers($headers);
 
+    my $strftime = sub {
+        my $old_locale = POSIX::setlocale(&POSIX::LC_ALL);
+        POSIX::setlocale(&POSIX::LC_ALL, 'en');
+        my $out = POSIX::strftime(@_);
+        POSIX::setlocale(&POSIX::LC_ALL, $old_locale);
+        return $out;
+    };
+
     my $block_handler = sub {
         my($block, $type) = @_;
         if ($type eq 'i') {
@@ -42,7 +50,7 @@ sub log_line {
         } elsif ($type eq 'o') {
             return scalar $h->get($block) || "-";
         } elsif ($type eq 't') {
-            return "[" . POSIX::strftime($block, localtime) . "]";
+            return "[" . $strftime->($block, localtime) . "]";
         } else {
             Carp::carp("{$block}$type not supported");
             return "-";
@@ -54,7 +62,7 @@ sub log_line {
         h => sub { $env->{HTTP_X_FORWARDED_FOR} || $env->{REMOTE_ADDR} || '-' },
         l => sub { '-' },
         u => sub { $env->{REMOTE_USER} || '-' },
-        t => sub { "[" . POSIX::strftime("%d/%b/%Y %H:%M:%S", localtime) . "]" },
+        t => sub { "[" . $strftime->("%d/%b/%Y %H:%M:%S", localtime) . "]" },
         r => sub { $env->{REQUEST_METHOD} . " " . $env->{REQUEST_URI} .
                    " " . $env->{SERVER_PROTOCOL} },
         s => sub { $status },
@@ -79,7 +87,7 @@ sub log_line {
 
     $fmt =~ s{
         (?:
-         \%\{([\w\-]+)\}([a-z]) |
+         \%\{(.+?)\}([a-z]) |
          \%(?:[<>])?([a-z\%])
         )
     }{ $1 ? $block_handler->($1, $2) : $char_handler->($3) }egx;
