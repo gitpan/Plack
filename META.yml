@@ -28,8 +28,11 @@ requires:
   Devel::StackTrace: 0
   Devel::StackTrace::AsHTML: 0
   File::ShareDir: 1.00
+  Filesys::Notify::Simple: 0
   Filter::Util::Call: 0
+  IO::Compress::Gzip: IO::Compress::Deflate
   LWP: 0
+  Path::Class: MIME::Types
   Pod::Usage: 0
   Try::Tiny: 0
   URI: 0
@@ -38,4 +41,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.9007
+version: 0.9008
