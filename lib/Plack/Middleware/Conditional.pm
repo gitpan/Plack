@@ -15,11 +15,7 @@ sub new {
 sub call {
     my($self, $env) = @_;
 
-    my $app = $self->app;
-    if ($self->condition->($env)) {
-        $app = $self->middleware;
-    }
-
+    my $app = $self->condition->($env) ? $self->middleware : $self->app;
     return $app->($env);
 }
 
@@ -69,11 +65,16 @@ the explanation and might not exist.
   # Work with other conditional setter middleware:
   # Transcode Jpeg on the fly for mobile clients
   builder {
+      enable 'MobileDetector';
       enable_if { $_[0]->{'psgix.mobile_detected'} }
         'TranscodeJpeg', max_size => 30_000;
-      enable 'MobileDetector';
       $app;
   };
+
+Note that in the last example I<MobileDetector> should come first
+because the conditional check runs in I<pre-run> condition, which is
+from outer to inner and that is from the top to the bottom in the
+Builder DSL code.
 
 =head1 AUTHOR
 
