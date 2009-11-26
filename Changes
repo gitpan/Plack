@@ -1,5 +1,17 @@
 Revision history for Perl extension Plack
 
+0.9015 Thu Nov 26 17:31:33 JST 2009
+        - Fixed a bug in URLMap where $env is shallow copied and some middleware don't work
+        - Added -e and -M to plackup
+        - plackup -r with args (directories to watch) is deprecated. Use -R instead
+        - plackup foo.psgi now DWIMs. -a (--app) continues to work
+        - Optimizaitons to Middleware and docs to explicitly call to_app because overloading happens
+          every request and is inefficient.
+        - The abilitiy to auto-select server backends for POE/AnyEvent/Coro is restored. Doesn't work with -r though. #50
+        - Display server package name in the Standalone/Prefork startup
+        - Fixed a bug in Plack::Test::MockHTTP where $res doesn't return the request (teejay)
+        - Fixed a bug in URLMap where requests to / fails in some cases (chiba)
+
 0.9014 Fri Nov 20 21:51:47 PST 2009
         - Updated docs for Standalone keep-alive options
         - Added Auth::Basic middleware
@@ -31,7 +43,7 @@ Revision history for Perl extension Plack
         - Fixed Middleware::AccessLog to let %{..}t strftime log format work (beppu)
         - Fixed a flush bug in gzip encoding in Middleware::Deflater
         - Fixed a bug in Middleware::AccessLog so POSIX strftime always works in English (fayland)
-        - Added Middleware::ContetnMD5 (Fayland)
+        - Added Middleware::ContentMD5 (Fayland)
         - Fixed plackup -r to actually reload the application code (robinsmidsrod)
 
 0.9006 Fri Oct 23 01:21:13 PDT 2009
@@ -56,7 +68,7 @@ Revision history for Perl extension Plack
         - Implemented callback style streaming in selected middlewares
         - Bump up HTTP::Parser::XS to fix memory leaks
         - Added Middleware::Chunked
-        - Added MIddleware::JSONP
+        - Added Middleware::JSONP
         - Added twitter-stream.psgi example to do streaming server push
         - Fixed Middleware::StackTrace to DWIM in framework generated 500 errors
         - Fixed Restarter to do what doc says

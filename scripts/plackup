@@ -8,7 +8,8 @@ use Plack::Util;
 use Pod::Usage;
 use Try::Tiny;
 
-my $app    = "app.psgi";
+my $psgi;
+my $eval;
 my $host;
 my $port   = 5000;
 my $env    = "development";
@@ -16,6 +17,7 @@ my $help   = 0;
 my $backend;
 my $reload;
 my @includes;
+my @modules;
 
 # delay the build process for reloader
 sub build(&;$) {
@@ -24,26 +26,53 @@ sub build(&;$) {
     return sub { $block->($app->()) };
 }
 
-# From 'prove': Allow cuddling the paths with the -I
-@ARGV = map { /^(-I)(.+)/ ? ($1,$2) : $_ } @ARGV;
+# From 'prove': Allow cuddling the paths with -I and -M
+@ARGV = map { /^(-[IM])(.+)/ ? ($1,$2) : $_ } @ARGV;
 
 Getopt::Long::Configure("no_ignore_case", "pass_through");
 GetOptions(
-    "a|app=s"      => \$app,
+    "a|app=s"      => \$psgi,
     "o|host=s"     => \$host,
     "p|port=i"     => \$port,
     "s|server=s"   => \$backend,
     "i|impl=s"     => sub { warn "-i is deprecated. Use -s instead\n"; $backend = $_[1] },
     "E|env=s"      => \$env,
+    "e=s"          => \$eval,
     'I=s@'         => \@includes,
-    'r|reload:s'   => sub { $reload = [ split ",", $_[1] || '.' ] },
+    'M=s@'         => \@modules,
+    'r|reload'     => sub { $reload = [ '.' ] },
+    'R|Reload=s'   => sub { $reload = [ split ",", $_[1] ] },
     "h|help",      => \$help,
 );
 
 pod2usage(0) if $help;
 lib->import(@includes) if @includes;
 
-my $handler = build { Plack::Util::load_psgi $app };
+for (@modules) {
+    my($module, @import) = split /[=,]/;
+    eval "require $module" or die $@;
+    $module->import(@import);
+}
+
+my(@options, @argv);
+while (defined($_ = shift @ARGV)) {
+    if (s/^--//) {
+        my @v = split '=', $_, 2;
+        $v[0] =~ tr/-/_/;
+        if (@v == 2) {
+            push @options, @v;
+        } else {
+            push @options, @v, shift @ARGV;
+        }
+    } else {
+        push @argv, $_;
+    }
+}
+
+push @options, host => $host, port => $port;
+
+$psgi ||= $argv[0] || "app.psgi";
+my $handler = $eval ? build { eval $eval or die $@ } : build { Plack::Util::load_psgi $psgi };
 
 if ($env eq 'development') {
     require Plack::Middleware::StackTrace;
@@ -52,20 +81,19 @@ if ($env eq 'development') {
     $handler = build { Plack::Middleware::AccessLog->wrap($_[0], logger => sub { print STDERR @_ }) } $handler;
 }
 
-my @args = map {
-    my $is_long_opt = s/^--//;
-    my @v = split '=', $_, 2;
-    $v[0] =~ tr/-/_/ if $is_long_opt;
-    @v;
-} @ARGV;
+my($loader, $app);
 
-push @args, host => $host, port => $port;
+if ($reload) {
+    require Plack::Loader::Reloadable;
+    $loader = Plack::Loader::Reloadable->new($reload);
+    $app = $handler;
+} else {
+    $loader = 'Plack::Loader';
+    $app = $handler->();
+}
 
-my $loader = $reload ?
-    do { require Plack::Loader::Reloadable; Plack::Loader::Reloadable->new($reload) } : 'Plack::Loader';
-
-my $server = $backend ? $loader->load($backend, @args) : $loader->auto(@args);
-$server->run($reload ? $handler : $handler->());
+my $server = $backend ? $loader->load($backend, @options) : $loader->auto(@options);
+$server->run($app);
 
 __END__
 
@@ -78,11 +106,11 @@ plackup - Run PSGI application with Plack servers
   # read your app from app.psgi file
   plackup
 
-  # can be passed with --app option (Or -a)
-  plackup --app hello.psgi
+  # can be passed as an ARGV[0] (or with -a option)
+  plackup hello.psgi
 
   # Switch server implementation with --server (or -s)
-  plackup --server Coro --port 9090
+  plackup --server Coro --port 9090 --host 127.0.0.1 test.psgi
 
 =head1 DESCRIPTION
 
@@ -104,20 +132,39 @@ directory, that would look like:
 The last statement of C<app.psgi> should be a code reference that is a
 PSGI application.
 
+=head1 ARGUMENTS
+
+=over 4
+
+=item .psgi
+
+  plackup --host 127.0.0.1 --port 9090 /path/to/app.psgi
+
+The first non-option argument is used as a C<.psgi> file path. You can
+also set this path with C<-a> or C<--app> option. If omitted, the
+default file path is C<app.psgi> in the current directory.
+
+=back
+
 =head1 OPTIONS
 
 =over 4
 
 =item -a, --app
 
-Use the C<--app> option to locate a C<.psgi> script with a different
-name in a different path. (Actually the path doesn't need to end in
-C<.psgi>: it's just there for convention)
+C<--app> option allows you to locate a C<.psgi> script with a
+different name in a different path. This can also be set as a
+non-option argument. (See above)
+
+=item -e
+
+Evaluate the given perl code as a PSGI app, much like perl's C<-e>
+option.
 
 =item -o, --host
 
 The interface a TCP based server daemon binds to. Defauts to undef,
-which lets most server backends bind the the any (*) interface. This
+which lets most server backends bind the any (*) interface. This
 opeion doesn't mean anything if the server is not TCP based.
 
 =item -p, --port
@@ -136,6 +183,10 @@ be prefered over the environment variable if present.
 
 Specify perl library include path, like C<perl>'s -I option.
 
+=item -M
+
+Specify modules to load before loading the app code.
+
 =item -E, --env
 
 Specify the environment option (default is C<development>). If it's
@@ -145,17 +196,22 @@ L<CommonLogger>, L<StackTrace>.
 =item -r, --reload
 
 Make plackup to watch updates from your development directory and
-restarts the server whenever a file is updated. You can specify the
-path to watch file updates separated by comma (C<,>) and it default to
-the current directory.
+restarts the server whenever a file is updated. This option by default
+watches the current directory. Use C<-R> if you want to watch other
+directories.
 
-  plackup -r /path/to/project/lib,/path/to/project/templates
+=item -R, --Reload
+
+C<-R> option allows you to specify the path to watch file updates
+separated by comma (C<,>).
+
+  plackup -R /path/to/project/lib,/path/to/project/templates
 
 =back
 
-Other options are passed through to the backend server. See each
-Plack::Server backend documentations to see which options are
-available.
+Other options that starts with C<--> are passed through to the backend
+server. See each Plack::Server backend documentations to see which
+options are available.
 
 =head1 SEE ALSO
 

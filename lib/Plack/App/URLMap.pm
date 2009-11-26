@@ -50,10 +50,12 @@ sub to_app {
             next unless not defined $host     or
                         $http_host   eq $host or
                         $server_name eq $host;
-            next unless $path =~ s!\Q$location\E!!;
+            next unless $location eq '' or $path =~ s!\Q$location\E!!;
             next unless $path eq '' or $path =~ m!/!;
 
-            return $app->({ %$env, PATH_INFO => $path, SCRIPT_NAME => $script_name . $location  });
+            local $env->{PATH_INFO}  = $path;
+            local $env->{SCRIPT_NAME} = $script_name . $location;
+            return $app->($env);
         }
 
         return [404, [ 'Content-Type' => 'text/plain' ], [ "Not Found" ]];
@@ -81,7 +83,7 @@ Plack::App::URLMap - Map multiple apps in different paths
   $urlmap->map("/foo" => $app2);
   $urlmap->map("http://bar.example.com/" => $app3);
 
-  $urlmap; # Or $urlmap->to_app
+  my $app = $urlmap->to_app;
 
 =head1 DESCRIPTION
 
