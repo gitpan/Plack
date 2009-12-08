@@ -1,8 +1,8 @@
 package Plack::App::FCGIDispatcher;
 use strict;
 use warnings;
-use parent qw(Plack::Middleware);
-__PACKAGE__->mk_accessors(qw(host port socket));
+use parent qw(Plack::Component);
+use Plack::Util::Accessor qw(host port socket);
 
 use FCGI::Client;
 use HTTP::Response;

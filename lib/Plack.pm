@@ -3,7 +3,7 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9020';
+our $VERSION = '0.9021';
 
 1;
 __END__
@@ -17,7 +17,8 @@ Plack - PSGI reference implementation and utilities
 Plack is a set of PSGI reference server implementations and helper
 utilities for Web application frameworks, exactly like Ruby's Rack.
 
-See L<PSGI> for the PSGI specification.
+See L<PSGI> for the PSGI specification and L<PSGI::FAQ> to know what
+PSGI and Plack are and why we need them.
 
 =head1 MODULES AND UTILITIES
 
@@ -89,6 +90,34 @@ callbacks.
 =head2 Plack::Test::Suite
 
 L<Plack::Test::Suite> is a test suite to test a new PSGI server backend.
+
+=head1 CONTRIBUTING
+
+=head2 Patches and Bug Fixes
+
+Small patches and bug fixes can be either submitted via nopaste on IRC
+L<irc://irc.perl.org/#plack> or email. You could also fork on github
+(http://github.com/miyagawa/Plack) to make larger fixes.
+
+=head2 Module Namespaces
+
+Modules added to the Plack:: sub-namespaces should be reasonably generic
+components which are useful as builing blocks and not just simply using
+Plack.
+
+Middleware authors are free to use the Plack::Middleware:: namespace for
+their middleware components. Middleware must be written in the pipeline
+style such that they can chained together with other middleware components.
+The Plack::Middleware:: modules in the core distribution are good examples
+of such modules. It is recommended that you inherit from L<Plack::Middleware>
+for these types of modules.
+
+Not all middleware components are wrappers, but instead are more like
+endpoints in a middleware chain. These types of components should use the
+Plack::App:: namespace. Again, look in the core modules to see excellent
+examples of these (L<Plack::App::File>, L<Plack::App::Directory>, etc.).
+It is recommended that you inherit from L<Plack::Component> for these
+types of modules.
 
 =head1 AUTHORS
 

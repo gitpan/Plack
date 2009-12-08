@@ -1,26 +1,10 @@
 package Plack::Middleware;
 use strict;
 use warnings;
-use parent qw/Class::Accessor::Fast/;
 use Carp ();
+use parent qw(Plack::Component);
 use Plack::Util;
-use overload '&{}' => sub { shift->to_app(@_) }, fallback => 1;
-
-__PACKAGE__->mk_accessors(qw/app/);
-
-sub new {
-    my $proto = shift;
-    my $class = ref $proto || $proto;
-
-    my $self;
-    if (@_ == 1 && ref $_[0] eq 'HASH') {
-        $self = bless {%{$_[0]}}, $class;
-    } else {
-        $self = bless {@_}, $class;
-    }
-
-    $self;
-}
+use Plack::Util::Accessor qw( app );
 
 sub import {
     my $class = shift;
@@ -37,11 +21,6 @@ sub wrap {
         $self = $self->new({ app => $app, @args });
     }
     return $self->to_app;
-}
-
-sub to_app {
-    my $self = shift;
-    return sub { $self->call(@_) };
 }
 
 sub response_cb {

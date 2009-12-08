@@ -1,14 +1,14 @@
 package Plack::App::File;
 use strict;
 use warnings;
-use parent qw/Plack::Middleware/;
+use parent qw/Plack::Component/;
 use File::Spec::Unix;
 use Path::Class 'dir';
 use Plack::Util;
 use HTTP::Date;
 use MIME::Types;
 
-__PACKAGE__->mk_accessors(qw( root encoding ));
+use Plack::Util::Accessor qw( root encoding );
 
 sub should_handle {
     my($self, $file) = @_;

@@ -1,8 +1,8 @@
 package Plack::App::Cascade;
 use strict;
-use base qw(Plack::Middleware);
+use base qw(Plack::Component);
 
-__PACKAGE__->mk_accessors(qw(apps catch codes));
+use Plack::Util::Accessor qw(apps catch codes);
 
 sub add {
     my $self = shift;
@@ -10,13 +10,10 @@ sub add {
     push @{$self->apps}, @_;
 }
 
-sub to_app {
+sub prepare_app {
     my $self = shift;
-
     my %codes = map { $_ => 1 } @{ $self->catch || [ 404 ] };
     $self->codes(\%codes);
-
-    $self->SUPER::to_app;
 }
 
 sub call {

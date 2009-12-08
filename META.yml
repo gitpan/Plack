@@ -24,7 +24,6 @@ no_index:
     - t
     - xt
 requires:
-  Class::Accessor::Fast: 0
   Devel::StackTrace: 0
   Devel::StackTrace::AsHTML: 0
   File::ShareDir: 1.00
@@ -41,4 +40,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.9020
+version: 0.9021
