@@ -416,7 +416,26 @@ our @TEST = (
             ];
         },
     ],
-
+    [
+        'a big header value > 128 bytes',
+        sub {
+            my $cb  = shift;
+            my $req = GET "http://127.0.0.1/";
+            my $v = ("abcdefgh" x 16);
+            $req->header('X-Foo' => $v);
+            my $res = $cb->($req);
+            is $res->code, 200;
+            is $res->content, $v;
+        },
+        sub {
+            my $env = shift;
+            return [
+                200,
+                [ 'Content-Type' => 'text/plain' ],
+                [ $env->{HTTP_X_FOO} ],
+            ];
+        },
+    ],
 );
 
 sub runtests {
@@ -486,7 +505,7 @@ Plack::Test::Suite is a test suite to test a new PSGI server implementation.
 
 =head1 AUTHOR
 
-Tokuhiro Matsuo
+Tokuhiro Matsuno
 
 Tatsuhiko Miyagawa
 
