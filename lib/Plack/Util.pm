@@ -93,12 +93,19 @@ sub foreach {
     }
 }
 
-sub load_psgi {
-    my $file = shift;
+sub class_to_file {
+    my $class = shift;
+    $class =~ s!::!/!g;
+    $class . ".pm";
+}
 
-    my $app = do $file;
+sub load_psgi {
+    my $stuff = shift;
+
+    my $file = $stuff =~ /^[a-zA-Z0-9\_\:]+$/ ? class_to_file($stuff) : $stuff;
+    my $app = require $file;
     return $app->to_app if $app and Scalar::Util::blessed($app) and $app->can('to_app');
-    return $app if $app and ref $app eq 'CODE' or overload::Method($app, '&{}');
+    return $app if $app and (ref $app eq 'CODE' or overload::Method($app, '&{}'));
 
     if (my $e = $@ || $!) {
         die "Can't load $file: $e";
@@ -328,11 +335,26 @@ the binary file, unless otherwise set in the caller's code.
 
 =item load_psgi
 
-  my $app = Plack::Util::load_psgi $app_psgi;
+  my $app = Plack::Util::load_psgi $psgi_file_or_class;
 
-Load C<app.psgi> file and evaluate the code to get PSGI application
-handler. If the file can't be loaded (e.g. file doesn't exist or has a
-perl syntax error), it will throw an exception.
+Load C<app.psgi> file or a class name (like C<MyApp::PSGI>) and
+require the file to get PSGI application handler. If the file can't be
+loaded (e.g. file doesn't exist or has a perl syntax error), it will
+throw an exception.
+
+B<Security>: If you give this function a class name or module name
+that is loadable from your system, it will load the module. This could
+lead to a security hole:
+
+  my $psgi = ...; # user-input: consider "Moose.pm"
+  $app = Plack::Util::load_psgi($psgi); # this does 'require "Moose.pm"'!
+
+Generally speaking, passing an external input to this function is
+considered very insecure. But if you really want to do that, be sure
+to validate the argument passed to this function. Also, if you do not
+want to accept an arbitrary class name but only load from a file path,
+make sure that the argument C<$psgi_file_or_class> begins with C</> so
+that Perl's built-in require function won't search the include path.
 
 =item run_app
 
