@@ -4,7 +4,6 @@ author:
   - 'Tatsuhiko Miyagawa'
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::Exception: 0
   Test::More: 0.88
   Test::Requires: 0
   Test::TCP: 0.11
@@ -30,7 +29,6 @@ requires:
   Filesys::Notify::Simple: 0
   Filter::Util::Call: 0
   LWP: 5.814
-  MIME::Types: 0
   Path::Class: 0
   Pod::Usage: 0
   Try::Tiny: 0
@@ -40,4 +38,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.9024
+version: 0.9025
