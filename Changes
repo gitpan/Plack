@@ -1,5 +1,9 @@
 Revision history for Perl extension Plack
 
+0.9026 Fri Jan  1 10:35:26 JST 2010
+        - Auth::Basic now accepts an object that duck types to ->authenticate (e.g. Authen::Simple)
+        - Reworked how response_cb body callback works, so Content-Length will be updated correctly
+
 0.9025 Sat Dec 26 10:11:59 JST 2009
         - Server::Standalone::* should now display the correct Server: value
         - Fixed a bug in AccessLog::Timed where %D and %T do not work
@@ -7,7 +11,7 @@ Revision history for Perl extension Plack
         - Removed a dependency to MIME::Types and include Plack::MIME
         - Refactored plackup into Plack::Runner
         - Fixed a failing test under stupid Win32 filesystem
-        - Fixed ConditioanlGET to work with delayed response
+        - Fixed ConditionalGET to work with delayed response
 
 0.9024 Sat Dec 19 12:25:52 PST 2009
         - Overwhauled how -r and -R works in plackup. Looks at .psgi and lib/ under that by default.
@@ -20,7 +24,7 @@ Revision history for Perl extension Plack
 
 0.9022 Sun Dec 13 10:53:01 PST 2009
         - Added more assertions to Middleware::Lint
-        - Added a new test to test big HTTP header, which reeals the FCGI::Client bug (zrail, tokuhirom)
+        - Added a new test to test big HTTP header, which reveals the FCGI::Client bug (zrail, tokuhirom)
         - plackup -e now automatically loads Plack::Builder
         - Fixed fcgi tests (tokuhirom)
         - Fixed Test::MockHTTP to make 500 response when the app died
