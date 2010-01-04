@@ -1,5 +1,5 @@
 ---
-abstract: 'PSGI reference implementation and utilities'
+abstract: 'PSGI toolkit and servers'
 author:
   - 'Tatsuhiko Miyagawa'
 build_requires:
@@ -38,4 +38,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.9026
+version: 0.9027
