@@ -27,7 +27,7 @@ sub load_class {
 sub is_real_fh ($) {
     my $fh = shift;
 
-    my $reftype = Scalar::Util::reftype($fh);
+    my $reftype = Scalar::Util::reftype($fh) or return;
     if (   $reftype eq 'IO'
         or $reftype eq 'GLOB' && *{$fh}{IO}
     ) {
@@ -121,7 +121,7 @@ sub run_app($$) {
         $app->($env);
     } catch {
         my $body = "Internal Server Error";
-        $env->{'psgi.errors'}->print($@);
+        $env->{'psgi.errors'}->print($_);
         return [ 500, [ 'Content-Type' => 'text/plain', 'Content-Length' => length($body) ], [ $body ] ];
     }
 }
