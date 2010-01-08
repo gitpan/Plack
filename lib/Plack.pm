@@ -3,7 +3,7 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9028';
+our $VERSION = '0.9029';
 
 1;
 __END__
@@ -126,6 +126,10 @@ B<DO NOT USE> Plack:: namespace to build a new web application or a
 framework. It's like naming your application under CGI:: namespace if
 it's supposed to run on CGI and that is a really bad choice and
 confuse people.
+
+=head1 COPYRIGHT
+
+Copyright 2009- Tatsuhiko Miyagawa
 
 =head1 AUTHORS
 
