@@ -4,14 +4,13 @@ use parent qw(Plack::Middleware);
 use Plack::Util::Accessor qw( realm authenticator );
 use Scalar::Util;
 use MIME::Base64;
-use Try::Tiny;
 
 sub prepare_app {
     my $self = shift;
 
     my $auth = $self->authenticator or die 'authenticator is not set';
     if (Scalar::Util::blessed($auth) && $auth->can('authenticate')) {
-        $self->authenticator(sub { my @args = @_; try { $auth->authenticate(@args) } });
+        $self->authenticator(sub { $auth->authenticate(@_) });
     } elsif (ref $auth ne 'CODE') {
         die 'authenticator should be a code reference or an object that responds to authenticate()';
     }
@@ -25,6 +24,7 @@ sub call {
 
     if ($auth =~ /^Basic (.*)$/) {
         my($user, $pass) = split /:/, (MIME::Base64::decode($1) || ":");
+        $pass = '' unless defined $pass;
         if ($self->authenticator->($user, $pass)) {
             $env->{REMOTE_USER} = $user;
             return $self->app->($env);

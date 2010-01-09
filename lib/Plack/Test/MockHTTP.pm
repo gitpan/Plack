@@ -19,13 +19,13 @@ sub test_psgi {
         $req->uri->scheme('http')    unless defined $req->uri->scheme;
         $req->uri->host('localhost') unless defined $req->uri->host;
         my $env = $req->to_psgi;
-        my $res;
-        try {
-            $res = HTTP::Response->from_psgi($app->($env));
+
+        my $res = try {
+            HTTP::Response->from_psgi($app->($env));
         } catch {
-            $res = HTTP::Response->new(500);
-            $res->content($_);
+            HTTP::Response->from_psgi([ 500, [ 'Content-Type' => 'text/plain' ], [ $_ ] ]);
         };
+
         $res->request($req);
         return $res;
     };
