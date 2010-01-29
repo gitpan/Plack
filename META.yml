@@ -1,5 +1,5 @@
 ---
-abstract: 'PSGI toolkit and servers'
+abstract: 'Perl Superglue for Web frameworks and Web Servers (PSGI toolkit)'
 author:
   - '- Tatsuhiko Miyagawa'
 build_requires:
@@ -10,7 +10,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.91'
+generated_by: 'Module::Install version 0.92'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -28,6 +28,8 @@ requires:
   File::ShareDir: 1.00
   Filesys::Notify::Simple: 0
   Filter::Util::Call: 0
+  HTTP::Body: 0
+  Hash::MultiValue: 0.05
   LWP: 5.814
   Path::Class: 0
   Pod::Usage: 0
@@ -38,4 +40,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.9031
+version: 0.99_01

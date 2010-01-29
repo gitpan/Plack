@@ -390,8 +390,8 @@ our @TEST = (
         'REQUEST_URI is set',
         sub {
             my $cb  = shift;
-            my $res = $cb->(GET "http://127.0.0.1/foo/bar%20baz?x=a");
-            is $res->content, '/foo/bar%20baz?x=a';
+            my $res = $cb->(GET "http://127.0.0.1/foo/bar%20baz%73?x=a");
+            is $res->content, '/foo/bar%20baz%73?x=a';
         },
         sub {
             my $env = shift;
@@ -514,13 +514,13 @@ sub runtests {
 }
 
 sub run_server_tests {
-    my($class, $server, $server_port, $http_port) = @_;
+    my($class, $server, $server_port, $http_port, %args) = @_;
 
     if (ref $server ne 'CODE') {
         my $server_class = $server;
         $server = sub {
             my($port, $app) = @_;
-            my $server = Plack::Loader->load($server_class, port => $port, host => "127.0.0.1");
+            my $server = Plack::Loader->load($server_class, port => $port, host => "127.0.0.1", %args);
             $app = Plack::Middleware::Lint->wrap($app);
             $server->run($app);
         }

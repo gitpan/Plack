@@ -3,14 +3,15 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9031';
+our $VERSION = '0.99_01';
+$VERSION = eval $VERSION;
 
 1;
 __END__
 
 =head1 NAME
 
-Plack - PSGI toolkit and servers
+Plack - Perl Superglue for Web frameworks and Web Servers (PSGI toolkit)
 
 =head1 DESCRIPTION
 
@@ -22,17 +23,18 @@ PSGI and Plack are and why we need them.
 
 =head1 MODULES AND UTILITIES
 
-=head2 Plack::Server
+=head2 Plack::Handler
 
-L<Plack::Server> is a namespace for PSGI server implementations. We
-have Standalone, CGI, FCGI, Apache, AnyEvent, Coro, Danga::Socket and
-many server environments that you can run PSGI applications on.
+L<Plack::Handler> and its subclasses contains adapters for web
+servers. We have adapters for Standalone, CGI, FCGI, Apache, AnyEvent,
+Coro, Danga::Socket and many server environments that you can run PSGI
+applications on.
 
-See L<Plack::Server> how to write your own server implementation.
+See L<Plack::Handler> how to write your own adapters.
 
 =head2 Plack::Loader
 
-L<Plack::Loader> is a loader to load one of Plack::Server backends and
+L<Plack::Loader> is a loader to load one of Plack::Server adapters and
 run PSGI application code reference with it.
 
 =head2 Plack::Util

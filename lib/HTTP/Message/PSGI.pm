@@ -26,7 +26,12 @@ sub req_to_psgi {
     $uri->host('localhost') unless $uri->host;
     $uri->port(80)          unless $uri->port;
     $uri->host_port($host)  unless !$host || ( $host eq $uri->host_port );
-    $uri = $uri->canonical;
+
+    # STUPID: If the request URI is utf-8 decoded, methods like ->path
+    # and ->host returns decoded strings in ascii, which causes double
+    # encoded strings in uri_unescape and URI concatenation in
+    # Plack::Request :/
+    utf8::downgrade $$uri;
 
     open my $input, "<", \do { $req->content };
 
@@ -42,7 +47,7 @@ sub req_to_psgi {
         REMOTE_PORT       => int( rand(64000) + 1000 ),                   # not in RFC 3875
         REQUEST_URI       => $uri->path_query,                            # not in RFC 3875
         REQUEST_METHOD    => $req->method,
-        'psgi.version'      => [ 1, 0 ],
+        'psgi.version'      => [ 1, 1 ],
         'psgi.url_scheme'   => $uri->scheme eq 'https' ? 'https' : 'http',
         'psgi.input'        => $input,
         'psgi.errors'       => *STDERR,
@@ -50,6 +55,7 @@ sub req_to_psgi {
         'psgi.multiprocess' => $FALSE,
         'psgi.run_once'     => $TRUE,
         'psgi.streaming'    => $TRUE,
+        'psgi.nonblocking'  => $FALSE,
         @_,
     };
 
