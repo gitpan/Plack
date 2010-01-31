@@ -27,7 +27,6 @@ requires:
   Devel::StackTrace::AsHTML: 0
   File::ShareDir: 1.00
   Filesys::Notify::Simple: 0
-  Filter::Util::Call: 0
   HTTP::Body: 0
   Hash::MultiValue: 0.05
   LWP: 5.814
@@ -40,4 +39,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.99_01
+version: 0.99_02
