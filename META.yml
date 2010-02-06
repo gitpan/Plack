@@ -32,10 +32,10 @@ requires:
   LWP: 5.814
   Pod::Usage: 0
   Try::Tiny: 0
-  URI: 0
+  URI: 1.36
   parent: 0
   perl: 5.8.1
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.99_03
+version: 0.99_04
