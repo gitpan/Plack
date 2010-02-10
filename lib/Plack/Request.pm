@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.99_04';
+our $VERSION = '0.99_05';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -86,12 +86,12 @@ sub query_parameters {
 sub content {
     my $self = shift;
 
-    unless ($self->env->{'plack.request.tempfh'}) {
+    unless ($self->env->{'psgix.input.buffered'}) {
         $self->_parse_request_body;
     }
 
-    my $fh = $self->env->{'plack.request.tempfh'} or return '';
-    $fh->read(my($content), $self->content_length);
+    my $fh = $self->input or return '';
+    $fh->read(my($content), $self->content_length || 0, 0);
     $fh->seek(0, 0);
 
     return $content;
@@ -257,7 +257,7 @@ sub _parse_request_body {
     my $input = $self->input;
 
     my $buffer;
-    unless ($self->env->{'plack.request.tempfh'}) {
+    unless ($self->env->{'psgix.input.buffered'}) {
         $buffer = Plack::TempBuffer->new($cl);
     }
 
@@ -275,7 +275,10 @@ sub _parse_request_body {
     }
 
     if ($buffer) {
-        $self->env->{'plack.request.tempfh'} = $self->env->{'psgi.input'} = $buffer->rewind;
+        $self->env->{'psgix.input.buffered'} = 1;
+        $self->env->{'psgi.input'} = $buffer->rewind;
+    } else {
+        $input->seek(0, 0);
     }
 
     $self->env->{'plack.request.body'}   = Hash::MultiValue->from_mixed($body->param);
@@ -347,7 +350,7 @@ Request and Response API on top of PSGI.
 Some of the methods defined in the earlier versions are deprecated in
 version 1.00. Take a look at L</"INCOMPATIBILITIES">.
 
-Unless otherwise noted, all methods and attribtues are B<read-only>,
+Unless otherwise noted, all methods and attributes are B<read-only>,
 and passing values to the method like an accessor doesn't work like
 you expect it to.
 
@@ -470,7 +473,7 @@ Every time this method is called it returns a new, cloned URI object.
 
 =item base
 
-Retutrns an URI object for the base path of current request. This is
+Returns an URI object for the base path of current request. This is
 like C<uri> but only contains up to C<SCRIPT_NAME> where your
 application is hosted at.
 
@@ -569,7 +572,7 @@ reference,
   my $params = $req->prameters->mixed;
 
 where values are either a scalar or an array reference depending on
-input, so it might be useul if you already have the code to deal with
+input, so it might be useful if you already have the code to deal with
 that ugliness.
 
 =head2 PARSING POST BODY and MULTIPLE OBJECTS
@@ -627,7 +630,7 @@ C<raw_uri>. They will be removed in the next major release.
 All parameter-related methods such as C<parameters>,
 C<body_parameters>, C<query_parameters> and C<uploads> now contains
 L<Hash::MultiValue> objects, rather than I<scalar or an array
-reference depending on the user input> which is unsecure. See
+reference depending on the user input> which is insecure. See
 L<Hash::MultiValue> for more about this change.
 
 C<< $req->path >> method had a bug, where the code and the document
