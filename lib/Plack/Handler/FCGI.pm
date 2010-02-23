@@ -178,6 +178,12 @@ __END__
   );
   $server->run($app);
 
+
+=head1 DESCRIPTION
+
+This is a handler module to run any PSGI application as a standalone
+FastCGI daemon or a .fcgi script.
+
 =head2 OPTIONS
 
 =over 4
@@ -292,3 +298,10 @@ C<SCRIPT_NAME> and C<PATH_INFO> setting when you set I<check-local> to
 C<disable> so both configurations (root or non-root) should work fine.
 
 =cut
+
+=head1 SEE ALSO
+
+L<Plack>
+
+=cut
+

@@ -23,7 +23,8 @@ sub auto {
         $class->load($backend, @args);
     } catch {
         warn "Autoloading '$backend' backend failed. Falling back to the Standalone. ",
-            "(You might need to install Plack::Handler::$backend from CPAN)\n";
+            "(You might need to install Plack::Handler::$backend from CPAN)\n"
+                if $ENV{PLACK_DEV} && $ENV{PLACK_DEV} eq 'development';
         $class->load('Standalone' => @args);
     };
 
@@ -65,7 +66,7 @@ sub guess {
     } elsif ($ENV{GATEWAY_INTERFACE}) {
         return "CGI";
     } elsif (exists $INC{"AnyEvent.pm"}) {
-        return "AnyEvent";
+        return "Twiggy";
     } elsif (exists $INC{"Coro.pm"}) {
         return "Coro";
     } elsif (exists $INC{"POE.pm"}) {

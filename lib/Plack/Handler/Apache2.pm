@@ -131,8 +131,16 @@ Plack::Handler::Apache2 - Apache 2.0 handlers to run PSGI application
   Plack::Handler::Apache2->preload("/path/to/app.psgi");
   </Perl>
 
+=head1 DESCRIPTION
+
+This is a handler module to run any PSGI application with mod_perl on Apache 2.x.
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa
+
+=head1 SEE ALSO
+
+L<Plack>
 
 =cut

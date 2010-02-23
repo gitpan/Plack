@@ -49,12 +49,13 @@ Plack::Handler::HTTP::Server::Simple - Adapter for HTTP::Server::Simple
 Plack::Handler::HTTP::Server::Simple is an adapter to run PSGI
 applications on L<HTTP::Server::Simple>.
 
+=head1 SEE ALSO
+
+L<Plack>, L<HTTP::Server::Simple::PSGI>
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa
 
-=head1 SEE ALSO
-
-L<Plack>, L<HTTP::Server::Simple::PSGI>
 
 =cut

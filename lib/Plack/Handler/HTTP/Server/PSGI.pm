@@ -25,7 +25,7 @@ __END__
 
 =head1 NAME
 
-Plack::Handler::HTTP::Server::PSGI - adapter for HTTP:::Server::PSGI
+Plack::Handler::HTTP::Server::PSGI - adapter for HTTP::Server::PSGI
 
 =head1 SYNOPSIS
 
@@ -79,5 +79,9 @@ Max requests per a keep-alive request. Defaults to 100.
 Kazuho Oku
 
 Tatsuhiko Miyagawa
+
+=head1 SEE ALSO
+
+L<Plack> L<HTTP::Server::PSGI>
 
 =cut

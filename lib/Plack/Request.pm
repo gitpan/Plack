@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.99_05';
+our $VERSION = '0.9910';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -257,7 +257,10 @@ sub _parse_request_body {
     my $input = $self->input;
 
     my $buffer;
-    unless ($self->env->{'psgix.input.buffered'}) {
+    if ($self->env->{'psgix.input.buffered'}) {
+        # Just in case if input is read by middleware/apps beforehand
+        $input->seek(0, 0);
+    } else {
         $buffer = Plack::TempBuffer->new($cl);
     }
 
