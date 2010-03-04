@@ -28,11 +28,8 @@ sub load_app {
     };
 }
 
-sub handler {
-    my $r = shift;
-
-    my $psgi = $r->dir_config('psgi_app');
-    my $app = __PACKAGE__->load_app($psgi);
+sub call_app {
+    my ($class, $r, $app) = @_;
 
     $r->subprocess_env; # let Apache create %ENV for us :)
 
@@ -72,6 +69,13 @@ sub handler {
     }
 
     return Apache2::Const::OK;
+}
+
+sub handler {
+    my $class = __PACKAGE__;
+    my $r     = shift;
+    my $psgi  = $r->dir_config('psgi_app');
+    $class->call_app($class->load_app($psgi));
 }
 
 sub _handle_response {
@@ -131,13 +135,40 @@ Plack::Handler::Apache2 - Apache 2.0 handlers to run PSGI application
   Plack::Handler::Apache2->preload("/path/to/app.psgi");
   </Perl>
 
+  # Or create your own handler:
+  package My::ModPerl::Handler;
+  use Plack::Handler::Apache2;
+
+  sub get_app {
+    # magic!
+  }
+
+  sub handler {
+    my $r = shift;
+    my $app = get_app();
+    Plack::Handler::Apache2->call_app($r, $app);
+  }
+
 =head1 DESCRIPTION
 
 This is a handler module to run any PSGI application with mod_perl on Apache 2.x.
 
+=head1 METHODS
+
+=head2 call_app($r, $app)
+
+The mod_perl handler in this package loads the app and calls this method.  If
+you'd like to do something different, you can still make use of this module by
+preparing $r and $app in some other fashion and calling this as a class
+method.
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa
+
+=head1 CONTRIBUTORS
+
+Paul Driver
 
 =head1 SEE ALSO
 
