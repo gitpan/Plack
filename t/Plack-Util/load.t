@@ -40,10 +40,9 @@ use Test::More;
     like $@, qr/Global symbol/;
 }
 
-
 {
     eval { Plack::Util::load_psgi("t/Plack-Util/nonexistent.psgi") };
-    like $@, qr/No such file/;
+    unlike $@, qr/Died/;
 }
 
 done_testing;
