@@ -1,7 +1,7 @@
 ---
 abstract: 'Perl Superglue for Web frameworks and Web Servers (PSGI toolkit)'
 author:
-  - '- Tatsuhiko Miyagawa'
+  - 'Tatsuhiko Miyagawa'
 build_requires:
   ExtUtils::MakeMaker: 6.42
   Test::More: 0.88
@@ -38,4 +38,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.99_23
+version: 0.99_24
