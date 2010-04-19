@@ -3,7 +3,7 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9931';
+our $VERSION = '0.9932';
 $VERSION = eval $VERSION;
 
 1;
@@ -27,16 +27,23 @@ PSGI and Plack are and why we need them.
 =head2 Plack::Handler
 
 L<Plack::Handler> and its subclasses contains adapters for web
-servers. We have adapters for Standalone, CGI, FCGI, Apache, AnyEvent,
-Coro, Danga::Socket and many server environments that you can run PSGI
-applications on.
+servers. We have adapters for the built-in standalone web server
+L<HTTP::Server::PSGI>, L<CGI|Plack::Handler::CGI>,
+L<FCGI|Plack::Handler::FCGI>, L<Apache1|Plack::Handler::Apache1>,
+L<Apache2|Plack::Handler::Apache2>,
+L<Net::FastCGI|Plack::Handler::Net::FastCGI> and
+L<HTTP::Server::Simple|Plack::Handler::HTTP::Server::Simple> included
+in the core Plack distribution.
+
+There are also many HTTP server implementations on CPAN that has Plack
+handlers.
 
 See L<Plack::Handler> how to write your own adapters.
 
 =head2 Plack::Loader
 
-L<Plack::Loader> is a loader to load one of Plack::Server adapters and
-run PSGI application code reference with it.
+L<Plack::Loader> is a loader to load one of L<Plack::Handler> adapters
+and run PSGI application code reference with it.
 
 =head2 Plack::Util
 

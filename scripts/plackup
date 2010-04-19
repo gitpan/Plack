@@ -137,8 +137,8 @@ environment setting the application is running on.
 The value can be anything but commonly used ones are C<development>,
 C<deployment> and C<test>.
 
-If it's set to C<development>, following middleware is enabled by
-default: L<AccessLog>, L<StackTrace>.
+If it's set to C<development>, following middleware components are
+enabled by default: I<AccessLog>, I<StackTrace> and I<Lint>.
 
 =item -r, --reload
 
@@ -158,12 +158,16 @@ separated by comma (C<,>).
 
 Specify the server loading subclass that implements how to run the
 server. Available options are I<Plack::Loader> (default), I<Restarter>
-(automatically set when C<-r> or C<-R> is used) and I<Shotgun>.
+(automatically set when C<-r> or C<-R> is used), I<Delayed> and
+I<Shotgun>.
+
+See L<Plack::Loader::Delayed> and L<Plack::Loader::Shotgun> when to
+use those loader types.
 
 =back
 
 Other options that starts with C<--> are passed through to the backend
-server. See each Plack::Server backend documentations to see which
+server. See each Plack::Handler backend documentations to see which
 options are available.
 
 =head1 SEE ALSO
