@@ -105,7 +105,14 @@ sub _load_sandbox {
     my $_package = $_file;
     $_package =~ s/([^A-Za-z0-9_])/sprintf("_%2x", unpack("C", $1))/eg;
 
-    eval "package Plack::Sandbox::$_package; do(\$_file) or die(\$\@ || \$!)";
+    return eval sprintf <<'END_EVAL', $_package;
+package Plack::Sandbox::%s;
+{
+    my $app = do $_file;
+    if ( !$app && ( my $error = $@ || $! )) { die $error; }
+    $app;
+}
+END_EVAL
 }
 
 sub load_psgi {
@@ -115,14 +122,10 @@ sub load_psgi {
 
     my $file = $stuff =~ /^[a-zA-Z0-9\_\:]+$/ ? class_to_file($stuff) : $stuff;
     my $app = _load_sandbox($file);
-    return $app->to_app if $app and Scalar::Util::blessed($app) and $app->can('to_app');
-    return $app if $app and (ref $app eq 'CODE' or overload::Method($app, '&{}'));
+    die "Error while loading $file: $@" if $@;
 
-    if (my $e = $@ || $!) {
-        die "Can't load $file: $e";
-    } else {
-        Carp::croak("$file doesn't return PSGI app handler: " . ($app || undef));
-    }
+    return $app->to_app if $app and Scalar::Util::blessed($app) and $app->can('to_app');
+    return $app;
 }
 
 sub run_app($$) {
