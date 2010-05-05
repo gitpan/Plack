@@ -5,7 +5,7 @@ use parent qw/Plack::Middleware/;
 use Devel::StackTrace;
 use Devel::StackTrace::AsHTML;
 use Try::Tiny;
-use Plack::Util::Accessor qw( force );
+use Plack::Util::Accessor qw( force no_print_errors );
 
 our $StackTraceClass = "Devel::StackTrace";
 
@@ -26,11 +26,13 @@ sub call {
     my $caught;
     my $res = try { $self->app->($env) } catch { $caught = $_ };
 
-    if ($trace && ($caught || $self->{force} && ref $res eq 'ARRAY' && $res->[0] == 500) ) {
+    if ($trace && ($caught || ($self->force && ref $res eq 'ARRAY' && $res->[0] == 500)) ) {
+        my $text = trace_as_string($trace);
+        $env->{'psgi.errors'}->print($text) unless $self->no_print_errors;
         if (($env->{HTTP_ACCEPT} || '*/*') =~ /html/) {
             $res = [500, ['Content-Type' => 'text/html; charset=utf-8'], [ utf8_safe($trace->as_html) ]];
         } else {
-            $res = [500, ['Content-Type' => 'text/plain; charset=utf-8'], [ utf8_safe($trace->as_string) ]];
+            $res = [500, ['Content-Type' => 'text/plain; charset=utf-8'], [ utf8_safe($text) ]];
         }
     }
 
@@ -40,6 +42,21 @@ sub call {
     undef $trace;
 
     return $res;
+}
+
+sub trace_as_string {
+    my $trace = shift;
+
+    my $st = '';
+    my $first = 1;
+    foreach my $f ( $trace->frames() ) {
+        $st .= "\t" unless $first;
+        $st .= $f->as_string($first) . "\n";
+        $first = 0;
+    }
+
+    return $st;
+
 }
 
 sub utf8_safe {
@@ -105,6 +122,15 @@ middleware would never have a chance to display errors because it
 can't tell if it's an application error or just random C<eval> in your
 code. This option enforces the middleware to display stack trace even
 if it's not the direct error thrown by the application.
+
+=item no_print_errors
+
+  enable "StackTrace", no_print_errors => 1;
+
+Skips printing the text stacktrace to console
+(C<psgi.errors>). Defaults to 0, which means the text version of the
+stack trace error is printed to the errors handle, which usually is a
+standard error.
 
 =back
 

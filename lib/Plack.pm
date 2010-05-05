@@ -3,7 +3,7 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9934';
+our $VERSION = '0.9935';
 $VERSION = eval $VERSION;
 
 1;
@@ -165,6 +165,10 @@ confuse people.
 Tatsuhiko Miyagawa
 
 =head1 COPYRIGHT
+
+The following copyright notice applies to all the files provided in
+this distribution, including binary files, unless explicitly noted
+otherwise.
 
 Copyright 2009-2010 Tatsuhiko Miyagawa
 
