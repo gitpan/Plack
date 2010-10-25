@@ -45,6 +45,7 @@ sub call {
             open my $fh, "<", $path or die "$path: $!";
             $r->[2] = $fh;
             my $h = Plack::Util::headers($r->[1]);
+            $h->remove('Content-Length');
             $h->set('Content-Type', Plack::MIME->mime_type($path));
         }
     });
@@ -98,6 +99,8 @@ This configuration serves 502 error pages from file system directly
 assuming that's when you probably maintain database etc. but serves
 404 and 403 pages using a sub request so your application can do some
 logic there like logging or doing suggestions.
+
+When using a subrequest, the subrequest should return a regular '200' response.
 
 =back
 
