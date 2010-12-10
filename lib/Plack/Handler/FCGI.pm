@@ -27,7 +27,9 @@ sub run {
     my ($self, $app) = @_;
 
     my $sock = 0;
-    if ($self->{listen}) {
+    if (!RUNNING_IN_HELL && -S STDIN) {
+        # running from web server. Do nothing
+    } elsif ($self->{listen}) {
         my $old_umask = umask;
         unless ($self->{leave_umask}) {
             umask(0);
@@ -37,10 +39,8 @@ sub run {
         unless ($self->{leave_umask}) {
             umask($old_umask);
         }
-    }
-    elsif (!RUNNING_IN_HELL) {
-        -S STDIN
-            or die "STDIN is not a socket: specify a listen location";
+    } else {
+        die "STDIN is not a socket: specify a listen location";
     }
 
     my %env;
@@ -112,6 +112,11 @@ sub run {
                      "This friendly warning will go away in the next major release of Plack.";
             }
             $env->{SERVER_NAME} =~ s/:\d+$//; # cut off port number
+        }
+
+        # root access for mod_fastcgi
+        if (!exists $env->{PATH_INFO}) {
+            $env->{PATH_INFO} = '';
         }
 
         my $res = Plack::Util::run_app $app, $env;
