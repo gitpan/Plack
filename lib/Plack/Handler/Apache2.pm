@@ -85,22 +85,27 @@ sub handler {
     $class->call_app($r, $class->load_app($psgi));
 }
 
-# The method for PH::Apache2::Regitsry to override.
+# The method for PH::Apache2::Registry to override.
 sub fixup_path {
     my ($class, $r, $env) = @_;
-    my $vpath    = $env->{SCRIPT_NAME} . ($env->{PATH_INFO} || '');
-    my $path_info = $vpath;
 
-    my $location = $r->location || "/";
-       $location =~ s{/$}{};
+    # $env->{PATH_INFO} is created from unparsed_uri so it is raw.
+    my $path_info = $env->{PATH_INFO} || '';
 
-    # Let's *guess* if we're in a LocationMatch block
-    if ($location =~ /[^$URI::uric]/o) {
-        $path_info =~ s/($location)//;
+    # Get argument of <Location> or <LocationMatch> directive
+    # This may be string or regexp and we can't know either.
+    my $location = $r->location;
+
+    # Let's *guess* if we're in a LocationMatch directive
+    if ($path_info =~ s{^($location)/?}{/}) {
         $env->{SCRIPT_NAME} = $1 || '';
     } else {
-        $path_info =~ s/^\Q$location\E//;
-        $env->{SCRIPT_NAME} = $location;
+        # Apache's <Location> is matched but here is not.
+        # This is something wrong. We can only respect original.
+        $r->log_error(
+            "Your request path is '$path_info' and it doesn't match your Location(Match) '$location'. " .
+            "This should be due to the configuration error. See perldoc Plack::Handler::Apache2 for details."
+        );
     }
 
     $env->{PATH_INFO}   = $path_info;

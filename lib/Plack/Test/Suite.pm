@@ -16,6 +16,8 @@ use Try::Tiny;
 
 my $share_dir = try { File::ShareDir::dist_dir('Plack') } || 'share';
 
+$ENV{PLACK_TEST_PATH_PREFIX} = '';
+
 # 0: test name
 # 1: request generator coderef.
 # 2: request handler
@@ -69,7 +71,7 @@ our @TEST = (
         sub {
             my $cb = shift;
             my $chunk = "abcdefgh" x 12000;
-            my $req = HTTP::Request->new(POST => "http://127.0.0.1");
+            my $req = HTTP::Request->new(POST => "http://127.0.0.1/");
             $req->content_length(length $chunk);
             $req->content_type('application/octet-stream');
             $req->content($chunk);
@@ -273,6 +275,22 @@ our @TEST = (
         },
     ],
     [
+        '% encoding in PATH_INFO (outside of URI characters)',
+        sub {
+            my $cb  = shift;
+            my $res = $cb->(GET "http://127.0.0.1/foo%E3%81%82");
+            is $res->content, "/foo\x{e3}\x{81}\x{82}";
+        },
+        sub {
+            my $env = shift;
+            return [
+                200,
+                [ 'Content-Type' => 'text/plain', ],
+                [ $env->{PATH_INFO} ],
+            ];
+        },
+    ],
+    [
         'SERVER_PROTOCOL is required',
         sub {
             my $cb  = shift;
@@ -460,7 +478,7 @@ our @TEST = (
         sub {
             my $cb  = shift;
             my $res = $cb->(GET "http://127.0.0.1/foo/bar%20baz%73?x=a");
-            is $res->content, '/foo/bar%20baz%73?x=a';
+            is $res->content, ($ENV{PLACK_TEST_PATH_PREFIX} || '') . "/foo/bar%20baz%73?x=a";
         },
         sub {
             my $env = shift;
@@ -719,6 +737,9 @@ sub run_server_tests {
                 my $cb = sub {
                     my $req = shift;
                     $req->uri->port($http_port || $port);
+                    if ($ENV{PLACK_TEST_PATH_PREFIX}) {
+                        $req->uri->path($ENV{PLACK_TEST_PATH_PREFIX} . $req->uri->path);
+                    }
                     $req->header('X-Plack-Test' => $i);
                     return $ua->request($req);
                 };
