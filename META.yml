@@ -23,7 +23,7 @@ no_index:
     - xt
 requires:
   Devel::StackTrace: 1.23
-  Devel::StackTrace::AsHTML: 0.09
+  Devel::StackTrace::AsHTML: 0.1
   File::ShareDir: 1.00
   Filesys::Notify::Simple: 0
   HTTP::Body: 1.06
@@ -36,6 +36,8 @@ requires:
   parent: 0
   perl: 5.8.1
 resources:
+  bugtracker: https://github.com/miyagawa/plack/issues
+  homepage: http://plackperl.org
   license: http://dev.perl.org/licenses/
   repository: git://github.com/miyagawa/Plack.git
-version: 0.9963
+version: 0.9964
