@@ -298,14 +298,21 @@ other backends like L<Plack::Handler::Apache2> or mod_psgi.
 If you I<really> want to make your C<.psgi> runnable as a standalone
 script, you can do this:
 
-  # foo.psgi
-  if (__FILE__ eq $0) {
+  my $app = sub { ... };
+
+  unless (caller) {
       require Plack::Runner;
-      Plack::Runner->run(@ARGV, $0);
+      my $runner = Plack::Runner->new;
+      $runner->parse_options(@ARGV);
+      return $runner->run($app);
   }
 
-  # This should always come last
-  my $app = sub { ... };
+  return $app;
+
+B<WARNING>: this section used to recommend C<if (__FILE__ eq $0)> but
+it's known to be broken since Plack 0.9971, since C<$0> is now
+I<always> set to the .psgi file path even when you run it from
+plackup.
 
 =head1 SEE ALSO
 
