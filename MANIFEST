@@ -85,6 +85,7 @@ lib/Plack/Middleware/ContentMD5.pm
 lib/Plack/Middleware/ErrorDocument.pm
 lib/Plack/Middleware/Head.pm
 lib/Plack/Middleware/HTTPExceptions.pm
+lib/Plack/Middleware/IIS6ScriptNameFix.pm
 lib/Plack/Middleware/JSONP.pm
 lib/Plack/Middleware/LighttpdScriptNameFix.pm
 lib/Plack/Middleware/Lint.pm
@@ -187,6 +188,7 @@ t/Plack-Middleware/head.t
 t/Plack-Middleware/htpasswd
 t/Plack-Middleware/httpexceptions.t
 t/Plack-Middleware/httpexceptions_streaming.t
+t/Plack-Middleware/iis6_script_name_fix.t
 t/Plack-Middleware/jsonp.t
 t/Plack-Middleware/lint.t
 t/Plack-Middleware/lint_utf8_false_alarm.t
@@ -217,6 +219,7 @@ t/Plack-Middleware/urlmap_builder.t
 t/Plack-Middleware/urlmap_env.t
 t/Plack-Middleware/urlmap_ports.t
 t/Plack-Middleware/wrapcgi.t
+t/Plack-Middleware/wrapcgi_exec.t
 t/Plack-Middleware/xframework.t
 t/Plack-Middleware/xsendfile.t
 t/Plack-MIME/add_type.t
