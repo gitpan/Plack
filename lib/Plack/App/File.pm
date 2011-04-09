@@ -8,7 +8,7 @@ use Plack::Util;
 use Plack::MIME;
 use HTTP::Date;
 
-use Plack::Util::Accessor qw( root file encoding );
+use Plack::Util::Accessor qw( root file content_type encoding );
 
 sub should_handle {
     my($self, $file) = @_;
@@ -85,7 +85,8 @@ sub allow_path_info { 0 }
 sub serve_path {
     my($self, $env, $file) = @_;
 
-    my $content_type = Plack::MIME->mime_type($file) || 'text/plain';
+    my $content_type = $self->content_type || Plack::MIME->mime_type($file)
+                       || 'text/plain';
 
     if ($content_type =~ m!^text/!) {
         $content_type .= "; charset=" . ($self->encoding || "utf-8");
@@ -170,6 +171,11 @@ it's not set, the application uses C<root> to find the matching file.
 =item encoding
 
 Set the file encoding for text files. Defaults to C<utf-8>.
+
+=item content_type
+
+Set the file content type. If not set L<Plack::MIME> will try to detect it
+based on the file extension or fall back to C<text/plain>.
 
 =back
 
