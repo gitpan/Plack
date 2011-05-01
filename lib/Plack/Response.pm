@@ -1,7 +1,7 @@
 package Plack::Response;
 use strict;
 use warnings;
-our $VERSION = '0.9976';
+our $VERSION = '0.9977';
 $VERSION = eval $VERSION;
 
 use Plack::Util::Accessor qw(body status);
@@ -219,6 +219,10 @@ headers.
 
 Gets and sets HTTP response body. Setter can take either a string, an
 array ref, or an IO::Handle-like object. C<content> is an alias.
+
+Note that this method doesn't automatically set I<Content-Length> for
+the response. You have to set it manually if you want, with the
+C<content_length> method (see below).
 
 =item header
 

@@ -6,6 +6,7 @@ use constant RUNNING_IN_HELL => $^O eq 'MSWin32';
 use Scalar::Util qw(blessed);
 use Plack::Util;
 use FCGI;
+use HTTP::Status qw(status_message);
 use URI;
 use URI::Escape;
 
@@ -152,9 +153,11 @@ sub _handle_response {
     my ($self, $res) = @_;
 
     *STDOUT->autoflush(1);
+    binmode STDOUT;
 
     my $hdrs;
-    $hdrs = "Status: $res->[0]\015\012";
+    my $message = status_message($res->[0]);
+    $hdrs = "Status: $res->[0] $message\015\012";
 
     my $headers = $res->[1];
     while (my ($k, $v) = splice @$headers, 0, 2) {
