@@ -1,7 +1,7 @@
 package Plack::Response;
 use strict;
 use warnings;
-our $VERSION = '0.9978';
+our $VERSION = '0.9979';
 $VERSION = eval $VERSION;
 
 use Plack::Util::Accessor qw(body status);
@@ -270,6 +270,13 @@ B<does not> convert string formats such as C<+3M>.
       domain => '.example.com',
       expires => time + 24 * 60 * 60,
   };
+
+=item finalize
+
+  $res->finalize;
+
+Returns the status code, headers, and body of this response as a PSGI
+response array reference.
 
 =back
 
