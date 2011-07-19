@@ -1,7 +1,7 @@
 package Plack::Response;
 use strict;
 use warnings;
-our $VERSION = '0.9980';
+our $VERSION = '0.9981';
 $VERSION = eval $VERSION;
 
 use Plack::Util::Accessor qw(body status);
@@ -65,7 +65,8 @@ sub content_encoding {
 }
 
 sub location {
-    shift->headers->header('Location' => @_);
+    my $self = shift;
+    return $self->headers->header('Location' => @_);
 }
 
 sub redirect {
@@ -92,7 +93,14 @@ sub finalize {
         +[
             map {
                 my $k = $_;
-                map { ( $k => $_ ) } $self->headers->header($_);
+                map {
+                    my $v = $_;
+                    $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
+                    $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
+
+                    ( $k => $v )
+                } $self->headers->header($_);
+
             } $self->headers->header_field_names
         ],
         $self->_body,
@@ -246,9 +254,16 @@ Shortcut for the equivalent get/set methods in C<< $res->headers >>.
 
 Sets redirect URL with an optional status code, which defaults to 302.
 
+Note that this method doesn't normalize the given URI string. Users of
+this module have to be responsible about properly encoding URI paths
+and parameters.
+
 =item location
 
 Gets and sets C<Location> header.
+
+Note that this method doesn't normalize the given URI string in the
+setter. See above in C<redirect> for details.
 
 =item cookies
 

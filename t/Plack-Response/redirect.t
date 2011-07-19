@@ -18,4 +18,13 @@ use Plack::Response;
     is_deeply $res->finalize, [ 301, [ 'Location' => 'http://www.google.com/' ], [] ];
 }
 
+{
+    my $uri_invalid = "http://www.google.com/\r\nX-Injection: true\r\n\r\nHello World";
+
+    my $res = Plack::Response->new;
+    $res->redirect($uri_invalid, 301);
+    my $psgi_res = $res->finalize;
+    ok $psgi_res->[1][1] !~ /\n/;
+}
+
 done_testing;
