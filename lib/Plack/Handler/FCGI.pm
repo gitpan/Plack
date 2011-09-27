@@ -30,8 +30,9 @@ sub run {
     my ($self, $app) = @_;
 
     my $sock = 0;
-    if (!RUNNING_IN_HELL && -S STDIN) {
+    if (-S STDIN) {
         # running from web server. Do nothing
+        # Note it should come before listen check because of plackup's default
     } elsif ($self->{listen}) {
         my $old_umask = umask;
         unless ($self->{leave_umask}) {
@@ -42,7 +43,7 @@ sub run {
         unless ($self->{leave_umask}) {
             umask($old_umask);
         }
-    } else {
+    } elsif (!RUNNING_IN_HELL) {
         die "STDIN is not a socket: specify a listen location";
     }
 
@@ -295,7 +296,7 @@ Unix domain socket and run it at the server's root URL (/).
         fastcgi_param  CONTENT_TYPE     $content_type;
         fastcgi_param  CONTENT_LENGTH   $content_length;
         fastcgi_param  REQUEST_URI      $request_uri;
-        fastcgi_param  SEREVR_PROTOCOL  $server_protocol;
+        fastcgi_param  SERVER_PROTOCOL  $server_protocol;
         fastcgi_param  REMOTE_ADDR      $remote_addr;
         fastcgi_param  REMOTE_PORT      $remote_port;
         fastcgi_param  SERVER_ADDR      $server_addr;

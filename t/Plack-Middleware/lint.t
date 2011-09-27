@@ -3,6 +3,7 @@ use Plack::Test;
 use Test::More;
 use HTTP::Request::Common;
 
+use Plack::Builder;
 use Plack::Middleware::Lint;
 
 my @bad = map { Plack::Middleware::Lint->wrap($_) } (
@@ -31,6 +32,12 @@ my @good = map { Plack::Middleware::Lint->wrap($_) } (
         return [ 200, [ "Content-Type", "text/plain" ], $io ];
     },
 );
+
+push @bad, builder {
+    enable sub { my $app = shift; sub { $_[0]->{SCRIPT_NAME} = '/'; $app->(@_) } };
+    enable "Lint";
+    $good[0];
+};
 
 for my $app (@bad) {
     test_psgi $app, sub {
