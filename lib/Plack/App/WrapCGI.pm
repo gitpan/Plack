@@ -54,6 +54,8 @@ sub prepare_app {
                 my $fh = $env->{'psgi.input'};
                 <$fh>;
             });
+            # close STDIN so child will stop waiting
+            close $stdinw;
 
             my $res = '';
             while (waitpid($pid, WNOHANG) <= 0) {
@@ -106,6 +108,33 @@ PSGI server as a PSGI application.
 
 See also L<Plack::App::CGIBin> if you have a directory that contains a
 lot of CGI scripts and serve them like Apache's mod_cgi.
+
+=head1 METHODS
+
+=over 4
+
+=item new
+
+  my $app = Plack::App::WrapCGI->new(%args);
+
+Creates a new PSGI application using the given script. I<%args> has two
+parameters:
+
+=over 8
+
+=item script
+
+The path to a CGI-style program. This is a required parameter.
+
+=item execute
+
+An optional parameter. When set to a true value, this app will run the script
+with a CGI-style C<fork>/C<exec> model. Note that you may run programs written
+in other languages with this approach.
+
+=back
+
+=back
 
 =head1 AUTHOR
 

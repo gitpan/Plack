@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9983';
+our $VERSION = '0.9984';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -317,10 +317,9 @@ sub _parse_request_body {
 
 sub _make_upload {
     my($self, $upload) = @_;
-    Plack::Request::Upload->new(
-        headers => HTTP::Headers->new( %{delete $upload->{headers}} ),
-        %$upload,
-    );
+    my %copy = %$upload;
+    $copy{headers} = HTTP::Headers->new(%{$upload->{headers}});
+    Plack::Request::Upload->new(%copy);
 }
 
 1;
