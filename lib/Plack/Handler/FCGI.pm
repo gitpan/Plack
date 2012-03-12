@@ -47,10 +47,13 @@ sub run {
         die "STDIN is not a socket: specify a listen location";
     }
 
+    @{$self}{qw(stdin stdout stderr)} 
+      = (IO::Handle->new, IO::Handle->new, IO::Handle->new);
+
     my %env;
     my $request = FCGI::Request(
-        \*STDIN, \*STDOUT,
-        ($self->{keep_stderr} ? \*STDOUT : \*STDERR), \%env, $sock,
+        $self->{stdin}, $self->{stdout},
+        ($self->{keep_stderr} ? $self->{stdout} : $self->{stderr}), \%env, $sock,
         ($self->{nointr} ? 0 : &FCGI::FAIL_ACCEPT_ON_INTR),
     );
 
@@ -61,7 +64,7 @@ sub run {
 
         if ($self->{manager}) {
             if (blessed $self->{manager}) {
-                for (qw(nproc pid)) {
+                for (qw(nproc pid proc_title)) {
                     die "Don't use '$_' when passing in a 'manager' object"
                         if $self->{$_};
                 }
@@ -93,9 +96,9 @@ sub run {
             %env,
             'psgi.version'      => [1,1],
             'psgi.url_scheme'   => ($env{HTTPS}||'off') =~ /^(?:on|1)$/i ? 'https' : 'http',
-            'psgi.input'        => *STDIN,
-            'psgi.errors'       => *STDERR, # FCGI.pm redirects STDERR in Accept() loop, so just print STDERR
-                                            # print to the correct error handle based on keep_stderr
+            'psgi.input'        => $self->{stdin},
+            'psgi.errors'       => $self->{stderr}, # FCGI.pm redirects STDERR in Accept() loop, so just print STDERR
+                                                    # print to the correct error handle based on keep_stderr
             'psgi.multithread'  => Plack::Util::FALSE,
             'psgi.multiprocess' => Plack::Util::TRUE,
             'psgi.run_once'     => Plack::Util::FALSE,
@@ -158,8 +161,8 @@ sub run {
 sub _handle_response {
     my ($self, $res) = @_;
 
-    *STDOUT->autoflush(1);
-    binmode STDOUT;
+    $self->{stdout}->autoflush(1);
+    binmode $self->{stdout};
 
     my $hdrs;
     my $message = status_message($res->[0]);
@@ -171,9 +174,9 @@ sub _handle_response {
     }
     $hdrs .= "\015\012";
 
-    print STDOUT $hdrs;
+    print { $self->{stdout} } $hdrs;
 
-    my $cb = sub { print STDOUT $_[0] };
+    my $cb = sub { print { $self->{stdout} } $_[0] };
     my $body = $res->[2];
     if (defined $body) {
         Plack::Util::foreach($body, $cb);
@@ -269,6 +272,10 @@ Specify a FCGI::ProcManager sub-class
 
 Daemonize the process.
 
+=item proc-title
+
+Specify process title
+
 =item keep-stderr
 
 Send STDERR to STDOUT instead of the webserver
@@ -276,6 +283,10 @@ Send STDERR to STDOUT instead of the webserver
 =back
 
 =head2 WEB SERVER CONFIGURATIONS
+
+In all cases, you will want to install L<FCGI> and L<FGCI::ProcManager>.
+You may find it most convenient to simply install L<Task::Plack> which
+includes both of these.
 
 =head3 nginx
 
@@ -314,11 +325,29 @@ See L<http://wiki.nginx.org/NginxFcgiExample> for more details.
 
 =head3 Apache mod_fastcgi
 
-You can use C<FastCgiExternalServer> as normal.
+After installing C<mod_fastcgi>, you should add the C<FastCgiExternalServer>
+directive to your Apache config:
 
   FastCgiExternalServer /tmp/myapp.fcgi -socket /tmp/fcgi.sock
 
-See L<http://www.fastcgi.com/mod_fastcgi/docs/mod_fastcgi.html#FastCgiExternalServer> for more details.
+  ## Then set up the location that you want to be handled by fastcgi:
+
+  # EITHER from a given path
+  Alias /myapp/ /tmp/myapp.fcgi/
+
+  # OR at the root
+  Alias / /tmp/myapp.fcgi/
+
+Now you can use plackup to listen to the socket that you've just configured in Apache.
+
+  $  plackup -s FCGI --listen /tmp/myapp.sock psgi/myapp.psgi
+
+The above describes the "standalone" method, which is usually appropriate.
+There are other methods, described in more detail at 
+L<Catalyst::Engine::FastCGI/Standalone_server_mode> (with regards to Catalyst, but which may be set up similarly for Plack).
+
+See also L<http://www.fastcgi.com/mod_fastcgi/docs/mod_fastcgi.html#FastCgiExternalServer>
+for more details.
 
 =head3 lighttpd
 
@@ -328,7 +357,7 @@ To host the app in the root path, you're recommended to use lighttpd
   fastcgi.server = ( "/" =>
      ((
        "socket" => "/tmp/fcgi.sock",
-       "check-local" => "disable"
+       "check-local" => "disable",
        "fix-root-scriptname" => "enable",
      ))
 
@@ -343,9 +372,9 @@ To mount in the non-root path over TCP:
 
   fastcgi.server = ( "/foo" =>
      ((
-       "host" = "127.0.0.1"
-       "port" = "5000"
-       "check-local" => "disable"
+       "host" = "127.0.0.1",
+       "port" = "5000",
+       "check-local" => "disable",
      ))
 
 It's recommended that your mount path does B<NOT> have the trailing
