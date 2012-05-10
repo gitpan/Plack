@@ -28,12 +28,6 @@ sub req_to_psgi {
     $uri->port(80)          unless $uri->port;
     $uri->host_port($host)  unless !$host || ( $host eq $uri->host_port );
 
-    # STUPID: If the request URI is utf-8 decoded, methods like ->path
-    # and ->host returns decoded strings in ascii, which causes double
-    # encoded strings in uri_unescape and URI concatenation in
-    # Plack::Request :/
-    utf8::downgrade $$uri;
-
     my $input;
     my $content = $req->content;
     if (ref $content eq 'CODE') {
@@ -86,6 +80,10 @@ sub req_to_psgi {
     if ($env->{SCRIPT_NAME}) {
         $env->{PATH_INFO} =~ s/^\Q$env->{SCRIPT_NAME}\E/\//;
         $env->{PATH_INFO} =~ s/^\/+/\//;
+    }
+
+    if (!defined($env->{HTTP_HOST}) && $req->uri->can('host')) {
+        $env->{HTTP_HOST} = $req->uri->host;
     }
 
     return $env;
