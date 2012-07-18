@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9989';
+our $VERSION = '0.9990';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -83,7 +83,10 @@ sub cookies {
 
 sub query_parameters {
     my $self = shift;
-    $self->env->{'plack.request.query'} ||= Hash::MultiValue->new($self->uri->query_form);
+    my @combined = $self->uri->query_form;
+    @combined = (@combined, map { $_, '' } $self->uri->query_keywords);
+
+    $self->env->{'plack.request.query'} ||= Hash::MultiValue->new(@combined);
 }
 
 sub content {
@@ -114,7 +117,7 @@ sub headers {
                 (my $field = $_) =~ s/^HTTPS?_//;
                 ( $field => $env->{$_} );
             }
-                grep { /^(?:HTTP|CONTENT|COOKIE)/i } keys %$env
+                grep { /^(?:HTTP|CONTENT)/i } keys %$env
             );
     }
     $self->{headers};
