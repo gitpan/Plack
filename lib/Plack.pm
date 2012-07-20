@@ -3,7 +3,7 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9991';
+our $VERSION = '1.0000';
 $VERSION = eval $VERSION;
 
 1;
@@ -178,7 +178,7 @@ Tatsuhiko Miyagawa (miyagawa)
 
 Tokuhiro Matsuno (tokuhirom)
 
-Jesse Leuhrs (doy)
+Jesse Luehrs (doy)
 
 Tomas Doran (bobtfish)
 
