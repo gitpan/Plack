@@ -3,7 +3,7 @@ package Plack;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '0.9990';
+our $VERSION = '0.9991';
 $VERSION = eval $VERSION;
 
 1;
@@ -128,8 +128,8 @@ L<Plack::Test::Suite> is a test suite to test a new PSGI server backend.
 
 Small patches and bug fixes can be either submitted via nopaste on IRC
 L<irc://irc.perl.org/#plack> or L<the github issue
-tracker|http://github.com/miyagawa/Plack/issues>.  Forking on
-L<github|http://github.com/miyagawa/Plack> is another good way if you
+tracker|http://github.com/plack/Plack/issues>.  Forking on
+L<github|http://github.com/plack/Plack> is another good way if you
 intend to make larger fixes.
 
 See also L<http://contributing.appspot.com/plack> when you think this
@@ -172,11 +172,21 @@ otherwise.
 
 Copyright 2009-2011 Tatsuhiko Miyagawa
 
+=head1 CORE DEVELOPERS
+
+Tatsuhiko Miyagawa (miyagawa)
+
+Tokuhiro Matsuno (tokuhirom)
+
+Jesse Leuhrs (doy)
+
+Tomas Doran (bobtfish)
+
+Graham Knop (haarg)
+
 =head1 CONTRIBUTORS
 
 Yuval Kogman (nothingmuch)
-
-Tokuhiro Matsuno (tokuhirom)
 
 Kazuhiro Osawa (Yappo)
 
@@ -200,8 +210,6 @@ Stevan Little
 
 Hans Dieter Pearcey (confound)
 
-Tomas Doran (t0m)
-
 mala
 
 Mark Stosberg
@@ -214,9 +222,9 @@ The L<PSGI> specification upon which Plack is based.
 
 L<http://plackperl.org/>
 
-The Plack wiki: L<https://github.com/miyagawa/Plack/wiki>
+The Plack wiki: L<https://github.com/plack/Plack/wiki>
 
-The Plack FAQ: L<https://github.com/miyagawa/Plack/wiki/Faq>
+The Plack FAQ: L<https://github.com/plack/Plack/wiki/Faq>
 
 =head1 LICENSE
 

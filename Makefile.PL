@@ -1,5 +1,5 @@
+# install Module::Install Module::Install::AuthorTests Module::Install::ReadmeFromPod Module::Install::Repository
 sub author_tests  { }
-sub use_test_base { warn "You need to install Test::Base to run make test from git clone" }
 sub readme_from   { }
 sub auto_set_repository { }
 
@@ -39,7 +39,7 @@ auto_set_repository;
 
 resources
   homepage      => "http://plackperl.org",
-  bugtracker    => "https://github.com/miyagawa/plack/issues";
+  bugtracker    => "https://github.com/plack/Plack/issues";
 
 WriteAll;
 

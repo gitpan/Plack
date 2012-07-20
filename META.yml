@@ -38,8 +38,8 @@ requires:
   parent: 0
   perl: 5.8.1
 resources:
-  bugtracker: https://github.com/miyagawa/plack/issues
+  bugtracker: https://github.com/plack/Plack/issues
   homepage: http://plackperl.org
   license: http://dev.perl.org/licenses/
-  repository: git://github.com/miyagawa/Plack.git
-version: 0.9990
+  repository: git://github.com/plack/Plack.git
+version: 0.9991
