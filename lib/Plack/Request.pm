@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '1.0001';
+our $VERSION = '1.0002';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -185,8 +185,9 @@ sub uri {
     # This means when a request like /foo%2fbar comes in, we recognize
     # it as /foo/bar which is not ideal, but that's how the PSGI PATH_INFO
     # spec goes and we can't do anything about it. See PSGI::FAQ for details.
-    # http://github.com/plack/Plack/issues#issue/118
-    my $path_escape_class = '^A-Za-z0-9\-\._~/';
+
+    # See RFC 3986 before modifying.
+    my $path_escape_class = q{^/;:@&=A-Za-z0-9$_.+!*'(),-};
 
     my $path = URI::Escape::uri_escape($self->env->{PATH_INFO} || '', $path_escape_class);
     $path .= '?' . $self->env->{QUERY_STRING}
