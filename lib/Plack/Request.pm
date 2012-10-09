@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '1.0004';
+our $VERSION = '1.0005';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -11,7 +11,7 @@ use Hash::MultiValue;
 use HTTP::Body;
 
 use Plack::Request::Upload;
-use Plack::TempBuffer;
+use Stream::Buffered;
 use URI;
 use URI::Escape ();
 
@@ -251,7 +251,7 @@ sub _parse_request_body {
         # Just in case if input is read by middleware/apps beforehand
         $input->seek(0, 0);
     } else {
-        $buffer = Plack::TempBuffer->new($cl);
+        $buffer = Stream::Buffered->new($cl);
     }
 
     my $spin = 0;
@@ -434,6 +434,12 @@ using:
 
 Returns a reference to a hash containing the cookies. Values are
 strings that are sent by clients and are URI decoded.
+
+If there are multiple cookies with the same name in the request, this
+method will ignore the duplicates and return only the first value. If
+that causes issues for you, you may have to use modules like
+CGI::Simple::Cookie to parse C<$request->header('Cookies')> by
+yourself.
 
 =item query_parameters
 

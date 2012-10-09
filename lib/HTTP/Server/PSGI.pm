@@ -10,7 +10,7 @@ use HTTP::Date;
 use HTTP::Status;
 use List::Util qw(max sum);
 use Plack::Util;
-use Plack::TempBuffer;
+use Stream::Buffered;
 use Plack::Middleware::ContentLength;
 use POSIX qw(EINTR);
 use Socket qw(IPPROTO_TCP TCP_NODELAY);
@@ -112,6 +112,7 @@ sub accept_loop {
                 SERVER_NAME => $self->{host},
                 SCRIPT_NAME => '',
                 REMOTE_ADDR => $conn->peerhost,
+                REMOTE_PORT => $conn->peerport || 0,
                 'psgi.version' => [ 1, 1 ],
                 'psgi.errors'  => *STDERR,
                 'psgi.url_scheme' => $self->{ssl} ? 'https' : 'http',
@@ -147,7 +148,7 @@ sub handle_connection {
         if ($reqlen >= 0) {
             $buf = substr $buf, $reqlen;
             if (my $cl = $env->{CONTENT_LENGTH}) {
-                my $buffer = Plack::TempBuffer->new($cl);
+                my $buffer = Stream::Buffered->new($cl);
                 while ($cl > 0) {
                     my $chunk;
                     if (length $buf) {
