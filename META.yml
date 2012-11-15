@@ -43,5 +43,5 @@ resources:
   homepage: http://plackperl.org
   license: http://dev.perl.org/licenses/
   repository: git://github.com/plack/Plack.git
-version: 1.0012
+version: 1.0013
 x_authority: MIYAGAWA

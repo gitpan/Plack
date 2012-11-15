@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '1.0012';
+our $VERSION = '1.0013';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -92,6 +92,8 @@ sub content {
 
     my $fh = $self->input                 or return '';
     my $cl = $self->env->{CONTENT_LENGTH} or return'';
+
+    $fh->seek(0, 0); # just in case middleware/apps read it without seeking back
     $fh->read(my($content), $cl, 0);
     $fh->seek(0, 0);
 
