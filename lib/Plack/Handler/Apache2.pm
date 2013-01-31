@@ -196,27 +196,34 @@ sub _handle_response {
 
 __END__
 
+=encoding utf-8
+
 =head1 NAME
 
-Plack::Handler::Apache2 - Apache 2.0 handlers to run PSGI application
+Plack::Handler::Apache2 - Apache 2.0 mod_perl handler to run PSGI application
 
 =head1 SYNOPSIS
 
+  # in your httpd.conf
   <Location />
   SetHandler perl-script
   PerlResponseHandler Plack::Handler::Apache2
   PerlSetVar psgi_app /path/to/app.psgi
   </Location>
 
-  # Optional, preload the application in the parent like startup.pl
-  <Perl>
-  use Plack::Handler::Apache2;
-  Plack::Handler::Apache2->preload("/path/to/app.psgi");
-  </Perl>
+  # Optionally preload your apps in startup
+  PerlPostConfigRequire /etc/httpd/startup.pl
+
+See L</STARTUP FILE> for more details on writing a C<startup.pl>.
 
 =head1 DESCRIPTION
 
-This is a handler module to run any PSGI application with mod_perl on Apache 2.x.
+This is a mod_perl handler module to run any PSGI application with mod_perl on Apache 2.x.
+
+If you want to run PSGI applications I<behind> Apache instead of using
+mod_perl, see L<Plack::Handler::FCGI> to run with FastCGI, or use
+standalone HTTP servers such as L<Starman> or L<Starlet> proxied with
+mod_proxy.
 
 =head1 CREATING CUSTOM HANDLER
 
@@ -238,6 +245,120 @@ run your application.
     Plack::Handler::Apache2->call_app($r, $app);
   }
 
+=head1 STARTUP FILE
+
+See L<http://perl.apache.org/docs/2.0/user/handlers/server.html#Startup_File>
+for information on the C<startup.pl> file for preloading perl modules and your
+apps.
+
+Some things to keep in mind when writing this file:
+
+=over 4
+
+=item * multiple init phases
+
+You have to check that L<Apache2::ServerUtil/restart_count> is C<< > 1 >>,
+otherwise your app will load twice and the env vars you set with
+L<PerlSetEnv|http://perl.apache.org/docs/2.0/user/config/config.html#C_PerlSetEnv_>
+will not be available when your app is loading the first time.
+
+Use the example below as a template.
+
+=item * C<@INC>
+
+The C<startup.pl> file is a good place to add entries to your C<@INC>.
+Use L<lib> to add entries, they can be in your app or C<.psgi> as well, but if
+your modules are in a L<local::lib> or some such, you will need to add the path
+for anything to load.
+
+Alternately, if you follow the example below, you can use:
+
+    PerlSetEnv PERL5LIB /some/path
+
+or
+
+    PerlSwitches -I/some/path
+
+in your C<httpd.conf>, which will also work.
+
+=item * loading errors
+
+Any exceptions thrown in your C<startup.pl> will stop Apache from starting at
+all.
+
+You probably don't want a stray syntax error to bring your whole server down in
+a shared or development environment, in which case it's a good idea to wrap the
+L</preload> call in an eval, using something like this:
+
+    require Plack::Handler::Apache2;
+
+    my @psgis = ('/path/to/app1.psgi', '/path/to/app2.psgi');
+
+    foreach my $psgi (@psgis) {
+        eval {
+            Plack::Handler::Apache2->preload($psgi); 1;
+        } or do {
+            my $error = $@ || 'Unknown Error';
+            # STDERR goes to the error_log
+            print STDERR "Failed to load psgi '$psgi': $error\n";
+        };
+    }
+
+
+=item * dynamically loaded modules
+
+Some modules load their dependencies at runtime via e.g. L<Class::Load>. These
+modules will not get preloaded into your parent process by just including the
+app/module you are using.
+
+As an optimization, you can dump C<%INC> from a request to see if you are using
+any such modules and preload them in your C<startup.pl>.
+
+Another method is dumping the difference between the C<%INC> on
+process start and process exit. You can use something like this to
+accomplish this:
+
+    my $start_inc = { %INC };
+
+    END {
+        my @m;
+        foreach my $m (keys %INC) {
+            push @m, $m unless exists $start_inc->{$m};
+        }
+
+        if (@m) {
+            # STDERR goes to the error_log
+            print STDERR "The following modules need to be preloaded:\n";
+            print STDERR "$_\n" for @m;
+        }
+    }
+
+=back
+
+Here is an example C<startup.pl>:
+
+    #!/usr/bin/env perl
+
+    use strict;
+    use warnings;
+    use Apache2::ServerUtil ();
+
+    BEGIN {
+        return unless Apache2::ServerUtil::restart_count() > 1;
+
+        require lib;
+        lib->import('/path/to/my/perl/libs');
+
+        require Plack::Handler::Apache2;
+
+        my @psgis = ('/path/to/app1.psgi', '/path/to/app2.psgi');
+        foreach my $psgi (@psgis) {
+            Plack::Handler::Apache2->preload($psgi);
+        }
+    }
+
+    1; # file must return true!
+
 =head1 AUTHOR
 
 Tatsuhiko Miyagawa
@@ -245,6 +366,10 @@ Tatsuhiko Miyagawa
 =head1 CONTRIBUTORS
 
 Paul Driver
+
+Ævar Arnfjörð Bjarmason
+
+Rafael Kitover
 
 =head1 SEE ALSO
 

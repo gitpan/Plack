@@ -11,13 +11,21 @@ use Plack::Test;
 
 my $base = cwd;
 
+Plack::MIME->add_type(".foo" => "text/x-fooo");
+
 my $handler = builder {
     enable "Plack::Middleware::Static",
         path => sub { s!^/share/!!}, root => "share";
     enable "Plack::Middleware::Static",
+        path => sub { s!^/more_share/!! if $_[1]->{PATH_INFO} =~ m!^/more_share/!  },
+        root => "share";
+    enable "Plack::Middleware::Static",
         path => sub { s!^/share-pass/!!}, root => "share", pass_through => 1;
     enable "Plack::Middleware::Static",
         path => qr{\.(t|PL|txt)$}i, root => '.';
+    enable "Plack::Middleware::Static",
+        path => qr{\.foo$}i, root => '.', 
+        content_type => sub { substr Plack::MIME->mime_type($_[0]),0,-1  } ;
     sub {
         [200, ['Content-Type' => 'text/plain', 'Content-Length' => 2], ['ok']]
     };
@@ -59,6 +67,11 @@ my %test = (
         }
 
         {
+            my $res = $cb->(GET "http://localhost/more_share/face.jpg");
+            is $res->content_type, 'image/jpeg';
+        }
+
+        {
             my $res = $cb->(GET "http://localhost/share-pass/faceX.jpg");
             is $res->code, 200, 'pass through';
             is $res->content, 'ok';
@@ -69,6 +82,11 @@ my %test = (
             is $res->content_type, 'text/plain';
             my($ct, $charset) = $res->content_type;
             is $charset, 'charset=utf-8';
+        }
+
+        {
+            my $res = $cb->(GET "http://localhost/t/Plack-Middleware/static.foo");
+            is $res->content_type, 'text/x-foo';
         }
 },
     app => $handler,
