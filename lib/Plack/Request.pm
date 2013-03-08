@@ -2,7 +2,7 @@ package Plack::Request;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION = '1.0017';
+our $VERSION = '1.0018';
 $VERSION = eval $VERSION;
 
 use HTTP::Headers;
@@ -77,10 +77,30 @@ sub cookies {
 
 sub query_parameters {
     my $self = shift;
-    my @combined = $self->uri->query_form;
-    @combined = (@combined, map { $_, '' } $self->uri->query_keywords);
+    $self->env->{'plack.request.query'} ||= $self->_parse_query;
+}
 
-    $self->env->{'plack.request.query'} ||= Hash::MultiValue->new(@combined);
+sub _parse_query {
+    my $self = shift;
+
+    my @query;
+    my $query_string = $self->env->{QUERY_STRING};
+    if (defined $query_string) {
+        if ($query_string =~ /=/) {
+            # Handle  ?foo=bar&bar=foo type of query
+            @query =
+                map { s/\+/ /g; URI::Escape::uri_unescape($_) }
+                map { /=/ ? split(/=/, $_, 2) : ($_ => '')}
+                split(/[&;]/, $query_string);
+        } else {
+            # Handle ...?dog+bones type of query
+            @query =
+                map { (URI::Escape::uri_unescape($_), '') }
+                split(/\+/, $query_string, -1);
+        }
+    }
+
+    Hash::MultiValue->new(@query);
 }
 
 sub content {
@@ -91,7 +111,7 @@ sub content {
     }
 
     my $fh = $self->input                 or return '';
-    my $cl = $self->env->{CONTENT_LENGTH} or return'';
+    my $cl = $self->env->{CONTENT_LENGTH} or return '';
 
     $fh->seek(0, 0); # just in case middleware/apps read it without seeking back
     $fh->read(my($content), $cl, 0);
