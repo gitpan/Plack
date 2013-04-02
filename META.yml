@@ -43,7 +43,7 @@ resources:
   bugtracker: https://github.com/plack/Plack/issues
   homepage: https://github.com/plack/Plack
   repository: https://github.com/plack/Plack.git
-version: 1.0021
+version: 1.0022
 x_authority: cpan:MIYAGAWA
 x_contributors:
   - 'Aaron Trevena <aaron.trevena@gmail.com>'
@@ -79,6 +79,7 @@ x_contributors:
   - 'Kang-min Liu <gugod@gugod.org>'
   - 'Karen Etheridge <ether@cpan.org>'
   - 'Kazuho Oku <kazuhooku@gmail.com>'
+  - 'Keedi Kim <keedi.k@gmail.com>'
   - 'Lee Aylward <lee@laylward.com>'
   - 'Leo Lapworth <leo@cuckoo.org>'
   - 'Mark Fowler <mark@twoshortplanks.com>'
