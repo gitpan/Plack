@@ -9,7 +9,7 @@ configure_requires:
   ExtUtils::MakeMaker: 6.30
   File::ShareDir::Install: 0.03
 dynamic_config: 0
-generated_by: 'Dist::Milla version v0.9.4, Dist::Zilla version 4.300032, CPAN::Meta::Converter version 2.130880'
+generated_by: 'Dist::Milla version v0.9.6, Dist::Zilla version 4.300032, CPAN::Meta::Converter version 2.130880'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -43,7 +43,7 @@ resources:
   bugtracker: https://github.com/plack/Plack/issues
   homepage: https://github.com/plack/Plack
   repository: https://github.com/plack/Plack.git
-version: 1.0020
+version: 1.0021
 x_authority: cpan:MIYAGAWA
 x_contributors:
   - 'Aaron Trevena <aaron.trevena@gmail.com>'
