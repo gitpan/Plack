@@ -22,6 +22,8 @@ my $tzoffset = POSIX::strftime("%z", localtime) !~ /^[+-]\d{4}$/ && do {
     sprintf '%+03d%02u', $min_offset / 60, $min_offset % 60;
 };
 
+my $psgi_reserved = { CONTENT_LENGTH => 1, CONTENT_TYPE => 1 };
+
 sub call {
     my $self = shift;
     my($env) = @_;
@@ -56,7 +58,9 @@ sub log_line {
         my($block, $type) = @_;
         if ($type eq 'i') {
             $block =~ s/-/_/g;
-            my $val = _safe($env->{"HTTP_" . uc($block)});
+            $block = uc($block);
+            $block = "HTTP_${block}" unless $psgi_reserved->{$block};
+            my $val = _safe($env->{$block});
             return defined $val ? $val : "-";
         } elsif ($type eq 'o') {
             return scalar $h->get($block) || "-";
@@ -181,7 +185,7 @@ L<Apache's LogFormat templates|http://httpd.apache.org/docs/2.0/mod/mod_log_conf
    %t    [local timestamp, in default format]
    %r    REQUEST_METHOD, REQUEST_URI and SERVER_PROTOCOL from the PSGI environment
    %s    the HTTP status code of the response
-   %b    content length
+   %b    content length of the response
    %T    custom field for handling times in subclasses
    %D    custom field for handling sub-second times in subclasses
    %v    SERVER_NAME from the PSGI environment, or -
@@ -199,7 +203,7 @@ In addition, custom values can be referenced, using C<%{name}>,
 with one of the mandatory modifier flags C<i>, C<o> or C<t>:
 
    %{variable-name}i    HTTP_VARIABLE_NAME value from the PSGI environment
-   %{header-name}o      header-name header
+   %{header-name}o      header-name header in the response
    %{time-format]t      localtime in the specified strftime format
 
 =item logger
