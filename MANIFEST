@@ -233,6 +233,7 @@ t/Plack-Response/cookie.t
 t/Plack-Response/new.t
 t/Plack-Response/redirect.t
 t/Plack-Response/response.t
+t/Plack-Response/to_app.t
 t/Plack-Runner/options.t
 t/Plack-Runner/path.t
 t/Plack-TempBuffer/print.t
@@ -258,3 +259,4 @@ t/Plack-Util/load.t
 t/Plack-Util/response_cb.t
 t/release-pod-syntax.t
 t/test.txt
+xt

@@ -1,7 +1,7 @@
 package Plack::Response;
 use strict;
 use warnings;
-our $VERSION = '1.0024';
+our $VERSION = '1.0025';
 $VERSION = eval $VERSION;
 
 use Plack::Util::Accessor qw(body status);
@@ -107,6 +107,12 @@ sub finalize {
         $self->_body,
     ];
 }
+
+sub to_app {
+    my $self = shift;
+    return sub { $self->finalize };
+}
+
 
 sub _body {
     my $self = shift;
@@ -295,6 +301,13 @@ B<does not> convert string formats such as C<+3M>.
 
 Returns the status code, headers, and body of this response as a PSGI
 response array reference.
+
+=item to_app
+
+  $app = $res->to_app;
+
+A helper shortcut for C<< sub { $res->finalize } >>.
+
 
 =back
 
