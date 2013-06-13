@@ -50,6 +50,7 @@ lib/Plack/Handler/FCGI.pm
 lib/Plack/Handler/HTTP/Server/PSGI.pm
 lib/Plack/Handler/HTTP/Server/Simple.pm
 lib/Plack/Handler/Standalone.pm
+lib/Plack/LWPish.pm
 lib/Plack/Loader.pm
 lib/Plack/Loader/Delayed.pm
 lib/Plack/Loader/Restarter.pm
@@ -259,4 +260,4 @@ t/Plack-Util/load.t
 t/Plack-Util/response_cb.t
 t/release-pod-syntax.t
 t/test.txt
-xt
+xt/author-downstream.t
