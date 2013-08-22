@@ -9,12 +9,12 @@ requires 'HTTP::Message', '5.814';
 requires 'Hash::MultiValue', '0.05';
 requires 'Pod::Usage', '1.36';
 requires 'Stream::Buffered', '0.02';
-requires 'Test::TCP', '1.02';
+requires 'Test::TCP', '2.00';
 requires 'Try::Tiny';
 requires 'URI', '1.59';
 requires 'parent';
 requires 'Apache::LogFormat::Compiler', '0.12';
-requires 'HTTP::Tiny', 0.024;
+requires 'HTTP::Tiny', 0.034;
 
 on test => sub {
     requires 'Test::More', '0.88';
@@ -29,6 +29,7 @@ on test => sub {
     suggests 'HTTP::Server::Simple::PSGI';
     suggests 'HTTP::Request::AsCGI';
     suggests 'LWP::UserAgent', '5.814';
+    suggests 'Module::Refresh';
 };
 
 on runtime => sub {
