@@ -9,7 +9,7 @@ configure_requires:
   ExtUtils::MakeMaker: 6.30
   File::ShareDir::Install: 0.03
 dynamic_config: 0
-generated_by: 'Dist::Milla version v1.0.3, Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.132140'
+generated_by: 'Dist::Milla version v1.0.4, Dist::Zilla version 5.006, CPAN::Meta::Converter version 2.132830'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -44,7 +44,7 @@ resources:
   bugtracker: https://github.com/plack/Plack/issues
   homepage: https://github.com/plack/Plack
   repository: https://github.com/plack/Plack.git
-version: 1.0029
+version: 1.0030
 x_authority: cpan:MIYAGAWA
 x_contributors:
   - 'Aaron Trevena <aaron.trevena@gmail.com>'
@@ -54,6 +54,7 @@ x_contributors:
   - 'Andy Wardley <abw@wardley.org>'
   - 'Aristotle Pagaltzis <pagaltzis@gmx.de>'
   - 'Ask Bjørn Hansen <ask@develooper.com>'
+  - 'Ben Morrow <ben@morrow.me.uk>'
   - 'Bernhard Graf <augensalat@gmail.com>'
   - 'Chia-liang Kao <clkao@clkao.org>'
   - 'Christian Walde <walde.christian@googlemail.com>'
@@ -94,6 +95,7 @@ x_contributors:
   - 'Michael G. Schwern <schwern@pobox.com>'
   - 'Nick Wellnhofer <wellnhofer@aevum.de>'
   - 'Nobuo Danjou <nobuo.danjou@gmail.com>'
+  - 'Olaf Alders <olaf@wundersolutions.com>'
   - 'Oliver Gorwits <oliver@cpan.org>'
   - 'Oliver Paukstadt <pstadt@sourcentral.org>'
   - 'Olivier Mengué <dolmen@cpan.org>'

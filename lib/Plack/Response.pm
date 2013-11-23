@@ -1,8 +1,7 @@
 package Plack::Response;
 use strict;
 use warnings;
-our $VERSION = '1.0029';
-$VERSION = eval $VERSION;
+our $VERSION = '1.0030';
 
 use Plack::Util::Accessor qw(body status);
 use Carp ();
@@ -86,24 +85,20 @@ sub finalize {
     my $self = shift;
     Carp::croak "missing status" unless $self->status();
 
-    my $headers = $self->headers->clone;
-    $self->_finalize_cookies($headers);
+    my $headers = $self->headers;
+    my @headers;
+    $headers->scan(sub{
+        my ($k,$v) = @_;
+        $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
+        $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
+        push @headers, $k, $v;
+    });
+
+    $self->_finalize_cookies(\@headers);
 
     return [
         $self->status,
-        +[
-            map {
-                my $k = $_;
-                map {
-                    my $v = $_;
-                    $v =~ s/\015\012[\040|\011]+/chr(32)/ge; # replace LWS with a single SP
-                    $v =~ s/\015|\012//g; # remove CR and LF since the char is invalid here
-
-                    ( $k => $v )
-                } $headers->header($_);
-
-            } $headers->header_field_names
-        ],
+        \@headers,
         $self->_body,
     ];
 }
@@ -130,7 +125,7 @@ sub _finalize_cookies {
 
     while (my($name, $val) = each %{$self->cookies}) {
         my $cookie = $self->_bake_cookie($name, $val);
-        $headers->push_header('Set-Cookie' => $cookie);
+        push @$headers, 'Set-Cookie' => $cookie;
     }
 }
 
