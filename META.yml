@@ -9,7 +9,7 @@ configure_requires:
   ExtUtils::MakeMaker: '0'
   File::ShareDir::Install: '0.06'
 dynamic_config: 0
-generated_by: 'Dist::Milla version v1.0.5, Dist::Zilla version 5.020, CPAN::Meta::Converter version 2.142060'
+generated_by: 'Dist::Milla version v1.0.8, Dist::Zilla version 5.020, CPAN::Meta::Converter version 2.142690'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -44,7 +44,7 @@ resources:
   bugtracker: https://github.com/plack/Plack/issues
   homepage: https://github.com/plack/Plack
   repository: https://github.com/plack/Plack.git
-version: '1.0031'
+version: '1.0032'
 x_authority: cpan:MIYAGAWA
 x_contributors:
   - 'Aaron Trevena <aaron.trevena@gmail.com>'
@@ -54,6 +54,7 @@ x_contributors:
   - 'Andy Wardley <abw@wardley.org>'
   - 'Aristotle Pagaltzis <pagaltzis@gmx.de>'
   - "Arthur Axel 'fREW' Schmidt <frioux@gmail.com>"
+  - 'Ashley Pond V <ashley.pond.v@gmail.com>'
   - 'Ask Bjørn Hansen <ask@develooper.com>'
   - 'Ben Morrow <ben@morrow.me.uk>'
   - 'Bernhard Graf <augensalat@gmail.com>'
@@ -63,15 +64,18 @@ x_contributors:
   - 'Cosimo Streppone <cosimo@cpan.org>'
   - 'Daisuke Maki <lestrrat+github@gmail.com>'
   - 'Daisuke Murase <typester@cpan.org>'
+  - 'Dave Marr <dave.marr@gmail.com>'
   - 'Dave Rolsky <autarch@urth.org>'
   - 'David E. Wheeler <david@justatheory.com>'
   - 'David Steinbrunner <dsteinbrunner@MountainBook-Pro.local>'
   - 'Eduardo Arino de la Rubia <earino@rent.com>'
+  - 'Eric Johnson <eric.git@iijo.org>'
   - 'Florian Ragwitz <rafl@debian.org>'
   - 'Graham Knop <haarg@haarg.org>'
   - 'Grant McLean <grant@catalyst.net.nz>'
   - 'HIROSE Masaaki <hirose31@gmail.com>'
   - 'Hans Dieter Pearcey <hdp@weftsoar.net>'
+  - 'Haruka Iwao <haruka@fout.jp>'
   - 'Henry Baragar <Henry.Baragar@Instantiated.Ca>'
   - 'Hiroshi Sakai <ziguzagu@gmail.com>'
   - 'Jakob Voss <jakob@nichtich.de>'
